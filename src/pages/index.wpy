@@ -29,7 +29,8 @@
     components = {}
 
     data = {
-      school: config.school
+      school: config.school,
+      markers: []
     }
 
     computed = {}
@@ -40,6 +41,12 @@
     events = {}
 
     onLoad() {
+      this.$parent.loadMarkers().then(res => {
+        this.$parent.clearMarkers(res.Ymarkers).then(res => {
+          this.markers = res[0].data // 暂时只展示一类数据
+          this.$apply()
+        })
+      })
     }
   }
 </script>

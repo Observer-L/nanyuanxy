@@ -5,6 +5,7 @@
   import wepy from 'wepy'
   import 'wepy-async-function'
   import config from './config'
+  let mockData = config.DEBUG ? require('./mock') : null
 
   export default class extends wepy.app {
     config = {
@@ -19,7 +20,8 @@
       }
     }
 
-    globalData = {}
+    globalData = {
+    }
 
     constructor() {
       super()
@@ -29,9 +31,40 @@
     onLaunch() {
       console.log('运行环境：', __ENV_PROD__ ? 'pro' : 'dev')
       console.log('运行配置：', config)
-      wx.cloud.init({
-        env: config.env,
-        traceUser: true
+      // wx.cloud.init({
+      //   env: config.env,
+      //   traceUser: true
+      // })
+    }
+
+    loadMarkers() {
+      return new Promise((resolve, reject) => {
+        if (config.DEBUG) {
+          //  加载本地数据
+          resolve(mockData)
+        } else {
+          //  加载服务器数据
+          console.log('加载服务器数据')
+        }
+      })
+    }
+
+    clearMarkers(data) {
+      //  清洗Marker数据
+      return new Promise(resolve => {
+        let cleanData = JSON.parse(JSON.stringify(data))
+        for (const i of cleanData) {
+          console.log(i)
+          for (const j of i.data) {
+            j.iconPath = `/images/icons/markers/${i.icon}.png`
+            j.width = config.markerStyle.width
+            j.height = config.markerStyle.height
+            j.latitude = j.location[0]
+            j.longitude = j.location[1]
+            j.callout = Object.assign({content: j.short_name ? j.short_name : j.name}, config.markerStyle.calloutStyle)
+          }
+        }
+        resolve(cleanData)
       })
     }
   }
