@@ -1,5 +1,5 @@
-const path = require('path');
-var prod = process.env.NODE_ENV === 'production';
+const path = require('path')
+var prod = process.env.NODE_ENV === 'production'
 
 module.exports = {
   wpyExt: '.wpy',
@@ -36,11 +36,20 @@ module.exports = {
         'transform-class-properties',
         'transform-decorators-legacy',
         'transform-object-rest-spread',
-        'transform-export-extensions',
+        'transform-export-extensions'
       ]
     }
   },
   plugins: {
+    'replace': [
+      {
+        filter: /\.js$/,
+        config: {
+          find: /__ENV_PROD__/g,
+          replace: prod
+        }
+      }
+    ]
   },
   appConfig: {
     noPromiseAPI: ['createSelectorQuery']
@@ -48,16 +57,23 @@ module.exports = {
 }
 
 if (prod) {
-
   // 压缩sass
   // module.exports.compilers['sass'] = {outputStyle: 'compressed'}
 
   // 压缩js
   module.exports.plugins = {
+    replace: [
+      {
+        filter: /\.js$/,
+        config: {
+          find: /__ENV_PROD__/g,
+          replace: prod
+        }
+      }
+    ],
     uglifyjs: {
       filter: /\.js$/,
-      config: {
-      }
+      config: {}
     },
     imagemin: {
       filter: /\.(jpg|png|jpeg)$/,

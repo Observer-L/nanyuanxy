@@ -4,6 +4,7 @@
 <script>
   import wepy from 'wepy'
   import 'wepy-async-function'
+  import config from './config'
 
   export default class extends wepy.app {
     config = {
@@ -26,6 +27,12 @@
     }
 
     onLaunch() {
+      console.log('运行环境：', __ENV_PROD__ ? 'pro' : 'dev')
+      console.log('运行配置：', config)
+      wx.cloud.init({
+        env: config.env,
+        traceUser: true
+      })
     }
   }
 </script>
