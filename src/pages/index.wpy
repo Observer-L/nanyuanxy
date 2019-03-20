@@ -4,12 +4,22 @@
 
 <template>
   <view>
-    Index
+    <map
+      id="map"
+      longitude="{{school.location[1]}}"
+      latitude="{{school.location[0]}}"
+      scale="{{school.scale}}"
+      markers="{{markers}}"
+      @markertap="markertap"
+      show-location
+      style="width: 100%; height: 100vh;"
+    ></map>
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
+  import config from '../config'
 
   export default class Index extends wepy.page {
     config = {
@@ -18,11 +28,14 @@
 
     components = {}
 
-    data = {}
+    data = {
+      school: config.school
+    }
 
     computed = {}
 
-    methods = {}
+    methods = {
+    }
 
     events = {}
 
