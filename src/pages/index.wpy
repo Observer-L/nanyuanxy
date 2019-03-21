@@ -79,10 +79,9 @@
           wx:key="{{index}}"
         >
           <cover-view
-            class="cat {{currentCatIndex == index ? 'selected' : ''}}"
+            class="cat {{currentCatIndex === index ? 'selected' : ''}}"
             id="{{index}}"
           >
-            <!-- TODO 在IOS/Android手机上均有切换BUG -->
             {{item.type}}
           </cover-view>
         </block>
