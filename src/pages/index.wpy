@@ -57,7 +57,7 @@
       id="map"
       longitude="{{school.location[1]}}"
       latitude="{{school.location[0]}}"
-      scale="{{originMarkers[currentCatIndex].scale}}"
+      scale="{{scale ? scale : originMarkers[currentCatIndex].scale}}"
       markers="{{markers}}"
       @markertap="handleMarkerTap"
       show-location
@@ -104,10 +104,13 @@
 
     data = {
       school: config.school,
+      latitude: null,
+      longitude: null,
       originMarkers: [],
       markers: [],
       showCats: true,
-      currentCatIndex: 0
+      currentCatIndex: 0,
+      scale: 0
     }
 
     methods = {
@@ -120,12 +123,17 @@
         this.showCats = !this.showCats
       },
       switchCat(e) {
-        console.log(e.target)
         const catIndex = Number(e.target.id)
-        if (this.currentCatIndex !== catIndex) {
-          this.currentCatIndex = catIndex
-          this.markers = this.originMarkers[catIndex].data
-        }
+        if (this.currentCatIndex === catIndex) return
+        const self = this
+        // POP效果
+        this.scale = 18
+        setTimeout(() => {
+          self.scale = 0
+          self.$apply()
+        }, 300)
+        this.currentCatIndex = catIndex
+        this.markers = this.originMarkers[catIndex].data
       }
     }
 
