@@ -1,15 +1,18 @@
 {
 	"description": "A WePY project",
 	"setting": {
-		"urlCheck": true,
+		"urlCheck": false,
 		"es6": false,
-		"postcss": false,
-		"minified": false,
-		"newFeature": true
+		"postcss": true,
+		"minified": true,
+		"newFeature": true,
+		"autoAudits": true,
+		"uglifyFileName": true
 	},
 	"compileType": "miniprogram",
 	"appid": "wxc50d144ec6dee31c",
 	"projectname": "nanyuanxy",
 	"miniprogramRoot": "dist/",
+	"libVersion": "2.6.2",
 	"condition": {}
 }

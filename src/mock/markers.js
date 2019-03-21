@@ -59,7 +59,40 @@ export const Ymarkers = [
       {
         name: '中区食堂',
         short_name: '中饭',
-        location: [23.628803, 113.679357],
+        location: [23.634966, 113.678976],
+        desc: '文字介绍',
+        images: [
+          'img1'
+        ],
+        panorama: '全景网页外链'
+      }
+    ]
+  },
+  {
+    id: 'random_id_generated_by_cloud_database_2',
+    type: '行政',
+    scale: 17,
+    icon: 'view',
+    data: [
+      {
+        name: '行政楼1号',
+        short_name: 'A1',
+        location: [23.633639, 113.676760],
+        desc: '文字介绍',
+        images: [
+          'img1',
+          'img2'
+        ],
+        contact: {
+          phone: '123456789',
+          address: '中山大学南方学院XXX'
+        },
+        panorama: '全景网页外链'
+      },
+      {
+        name: '行政楼2号',
+        short_name: 'A2',
+        location: [23.634519, 113.677828],
         desc: '文字介绍',
         images: [
           'img1'

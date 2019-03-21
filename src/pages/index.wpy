@@ -1,5 +1,54 @@
 <style lang="less">
   @import "../styles/base";
+  .sidebar {
+    position: absolute;
+    right: @sidebarPadding;
+    top: @sidebarPadding;
+    display: flex;
+    padding: @sidebarPadding;
+    flex-direction: column;
+    border: 1px dotted #aaa;
+    .btn {
+      width: @sidebarSize;
+      height: @sidebarSize;
+      border-radius: 50%;
+      background: @grayBg;
+      color: #fff;
+      &:not(:last-child) {
+        margin-bottom: @sidebarPadding;
+      }
+    }
+  }
+
+  .cats {
+    position: absolute;
+    right: @sidebarPadding;
+    top: (@sidebarSize * 4) + @sidebarPadding * 6;
+    width: @sidebarSize + (@sidebarPadding * 2);
+    background: @grayBg;
+    color: #fff;
+    opacity: 0;
+    transform: translateX(@sidebarSize + (@sidebarPadding * 3));
+    transition: all .3s ease;
+    &.active {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .cat {
+      width: 100%;
+      height: @sidebarSize;
+      background: @grayBg;
+      line-height: @sidebarSize;
+      text-align: center;
+      transition: all .3s ease;
+      &:not(:last-child) {
+        margin-bottom: @sidebarPadding / 2;
+      }
+      &.selected {
+        background: @themeColorX;
+      }
+    }
+  }
 </style>
 
 <template>
@@ -8,7 +57,7 @@
       id="map"
       longitude="{{school.location[1]}}"
       latitude="{{school.location[0]}}"
-      scale="{{school.scale}}"
+      scale="{{originMarkers[currentCatIndex].scale}}"
       markers="{{markers}}"
       @markertap="handleMarkerTap"
       show-location
@@ -17,7 +66,28 @@
       enable-overlooking
       enable-rotate
       style="width: 100%; height: 100vh;"
-    ></map>
+    >
+      <cover-view class="sidebar">
+        <cover-view class="btn">comment</cover-view>
+        <cover-view class="btn">intro</cover-view>
+        <cover-view class="btn">360</cover-view>
+        <cover-view class="btn btn-cats" @tap="toggleCats">cat</cover-view>
+      </cover-view>
+      <cover-view class="cats {{showCats ? 'active' : ''}}" @tap="switchCat">
+        <block
+          wx:for="{{originMarkers}}"
+          wx:key="{{index}}"
+        >
+          <cover-view
+            class="cat {{currentCatIndex == index ? 'selected' : ''}}"
+            id="{{index}}"
+          >
+            <!-- TODO 在IOS/Android手机上均有切换BUG -->
+            {{item.type}}
+          </cover-view>
+        </block>
+      </cover-view>
+    </map>
   </view>
 </template>
 
@@ -34,25 +104,36 @@
 
     data = {
       school: config.school,
-      markers: []
+      originMarkers: [],
+      markers: [],
+      showCats: true,
+      currentCatIndex: 0
     }
-
-    computed = {}
 
     methods = {
       handleMarkerTap(e) {
         const markerId = e.markerId
         console.log(markerId)
       //  利用ID跳转到该地点详情页
+      },
+      toggleCats() {
+        this.showCats = !this.showCats
+      },
+      switchCat(e) {
+        console.log(e.target)
+        const catIndex = Number(e.target.id)
+        if (this.currentCatIndex !== catIndex) {
+          this.currentCatIndex = catIndex
+          this.markers = this.originMarkers[catIndex].data
+        }
       }
     }
-
-    events = {}
 
     onLoad() {
       this.$parent.loadMarkers().then(res => {
         this.$parent.clearMarkers(res.Ymarkers).then(res => {
-          this.markers = res[0].data // 暂时只展示一类数据
+          this.originMarkers = res
+          this.markers = res[0].data
           this.$apply()
         })
       })
