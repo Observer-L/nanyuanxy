@@ -179,8 +179,8 @@
   <view>
     <map
       id="map"
-      longitude="{{school.location[1]}}"
-      latitude="{{school.location[0]}}"
+      longitude="{{mapCenter.length ? mapCenter[1] : school.location[1]}}"
+      latitude="{{mapCenter.length ? mapCenter[0] : school.location[0]}}"
       scale="{{scale ? scale : originMarkers[currentCatIndex].scale}}"
       markers="{{markers}}"
       @markertap="handleMarkerTap"
@@ -229,7 +229,12 @@
         <cover-view class="btn" id="xun" wx:else>寻</cover-view>
       </cover-view>
       <cover-view class="switch" @tap="switchMode">{{Ymode ? 'Y' : 'X'}}</cover-view>
-      <cover-view class="location {{Ymode && showDeck ? 'offset' : ''}}">定位</cover-view>
+      <cover-view
+        class="location {{Ymode && showDeck ? 'offset' : ''}}"
+        @tap="locate"
+      >
+        定位
+      </cover-view>
       <cover-view class="search {{Ymode && showDeck ? 'offset' : ''}}">搜索</cover-view>
     </map>
   </view>
@@ -247,6 +252,8 @@
     components = {}
 
     data = {
+      mapCtx: null,
+      mapCenter: [],
       school: config.school,
       originMarkers: [],
       markers: [],
@@ -267,11 +274,19 @@
         this.showCats = !this.showCats
       },
       switchCat(e) {
+        const self = this
         const catIndex = Number(e.target.id)
         if (this.currentCatIndex === catIndex) return
-        const self = this
+        // TODO MapContext回调失效问题
+        // this.mapCtx.includePoints({
+        //   padding: [50, 50, 50, 50],
+        //   points: self.markers,
+        //   success(res) {
+        //     console.log(res)
+        //   }
+        // })
         // POP效果
-        this.scale = 18
+        this.scale = 16
         setTimeout(() => {
           self.scale = 0
           self.$apply()
@@ -285,6 +300,10 @@
       switchMode() {
         this.Ymode = !this.Ymode
         this.showDeck = true
+      },
+      locate() {
+        // 使用MapContext而非wx.getLocation
+        this.mapCtx.moveToLocation()
       }
     }
 
@@ -296,6 +315,8 @@
           this.$apply()
         })
       })
+
+      this.mapCtx = wx.createMapContext('map')
     }
   }
 </script>
