@@ -1,3 +1,3 @@
-import {Ymarkers, markerStyle} from './markers'
+import {Ymarkers, Xmarkers, itemCats} from './markers'
 
-export { Ymarkers, markerStyle }
+export { Ymarkers, Xmarkers, itemCats }

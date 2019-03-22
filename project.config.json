@@ -4,10 +4,10 @@
 		"urlCheck": false,
 		"es6": false,
 		"postcss": false,
-		"minified": true,
+		"minified": false,
 		"newFeature": true,
 		"autoAudits": false,
-		"uglifyFileName": true
+		"uglifyFileName": false
 	},
 	"compileType": "miniprogram",
 	"appid": "wxc50d144ec6dee31c",

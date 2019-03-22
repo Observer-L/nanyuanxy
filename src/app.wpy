@@ -46,7 +46,7 @@
       return new Promise((resolve, reject) => {
         if (config.DEBUG) {
           //  加载本地数据
-          resolve(mockData)
+          resolve(this.clearMarkers(mockData))
         } else {
           //  加载服务器数据
           console.log('加载服务器数据')
@@ -57,19 +57,21 @@
     clearMarkers(data) {
       //  清洗Marker数据
       return new Promise(resolve => {
-        let cleanData = JSON.parse(JSON.stringify(data))
+        const cleanData = JSON.parse(JSON.stringify(data))
+        const markers = [cleanData.Ymarkers, cleanData.Xmarkers]
         let num = 0
-        for (const i of cleanData) {
-          console.log(i)
-          for (const j of i.data) {
-            j.id = num
-            num += 1
-            j.iconPath = `/images/icons/markers/${i.icon}.png`
-            j.width = config.markerStyle.width
-            j.height = config.markerStyle.height
-            j.latitude = j.location[0]
-            j.longitude = j.location[1]
-            j.callout = Object.assign({ content: j.short_name ? j.short_name : j.name }, config.markerStyle.calloutStyle)
+        for (const c of markers) {
+          for (const i of c) {
+            for (const j of i.data) {
+              j.id = num
+              num += 1
+              j.iconPath = `/images/icons/markers/${i.icon}.png`
+              j.width = config.markerStyle.width
+              j.height = config.markerStyle.height
+              j.latitude = j.location[0]
+              j.longitude = j.location[1]
+              j.callout = Object.assign({ content: j.short_name ? j.short_name : j.name }, config.markerStyle.calloutStyle)
+            }
           }
         }
         resolve(cleanData)

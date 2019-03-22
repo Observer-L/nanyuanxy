@@ -102,3 +102,104 @@ export const Ymarkers = [
     ]
   }
 ]
+
+export const Xmarkers = [
+  {
+    type: 'lost',
+    icon: 'card@lost',
+    data: [
+      {
+        id: 'random_id_0',
+        name: '校园卡',
+        status: 0,
+        cat: '证件',
+        location: [23.631629,113.679872],
+        area: ['中区', '图书馆'],
+        range: 30,
+        desc: '文字介绍',
+        images: [
+          'img1',
+          'img2'
+        ],
+        contact: {
+          phone: 123456789,
+          address: '指定交易地点'
+        },
+        time: 1552895083,
+        created_time: 1552895233
+      },
+      {
+        id: 'random_id_1',
+        name: 'U盘',
+        status: 0,
+        cat: '数码产品',
+        location: [23.631776,113.676835],
+        area: ['西区', '1教'],
+        range: 20,
+        desc: '文字介绍',
+        images: [
+          'img1',
+          'img2'
+        ],
+        contact: {
+          phone: 123456789,
+          address: '指定交易地点'
+        },
+        time: 1552825083,
+        created_time: 1552805233
+      }
+    ]
+  },
+  {
+    type: 'found',
+    icon: 'card@found',
+    data: [
+      {
+        id: 'random_id_2',
+        name: '身份证',
+        status: 0,
+        cat: '证件',
+        location: [23.634966, 113.678976],
+        area: ['中区', '中饭'],
+        range: 30,
+        desc: '文字介绍',
+        images: [
+          'img1',
+          'img2'
+        ],
+        contact: {
+          phone: 123456789,
+          address: '指定交易地点'
+        },
+        time: 1552845083,
+        created_time: 1552825233
+      },
+      {
+        id: 'random_id_3',
+        name: '水杯',
+        status: 0,
+        cat: '生活用品',
+        location: [23.632140,113.674850],
+        area: ['西区', '西操'],
+        range: 20,
+        desc: '文字介绍',
+        images: [
+          'img1',
+          'img2'
+        ],
+        contact: {
+          phone: 123456789,
+          address: '指定交易地点'
+        },
+        time: 1552865083,
+        created_time: 1552805233
+      }
+    ]
+  }
+]
+
+export const itemCats = [
+  '证件',
+  '数码产品',
+  '生活用品'
+]

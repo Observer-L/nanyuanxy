@@ -54,13 +54,18 @@
       &.selected {
         background: @themeColorX;
       }
+
+      &.lost {
+        color: @lostColor;
+      }
+
+      &.found {
+        color: @foundColor;
+      }
     }
   }
 
   /* FAB */
-  @FABsize: 160rpx;
-  @FABpadding: 20rpx;
-  @FABswicthSize: 50rpx;
   .FAB {
     position: absolute;
     width: @FABsize;
@@ -77,6 +82,7 @@
     }
   }
 
+  /* DECK */
   .deck {
     position: absolute;
     width: @FABsize * 2;
@@ -145,6 +151,7 @@
     }
   }
 
+  /*SWITCH*/
   .switch {
     position: absolute;
     left: 50%;
@@ -155,20 +162,26 @@
     transform: translateX(-50%);
     background: @grayBg;
   }
+
+  /* LOCATION & SEARCH */
   .location, .search {
     position: absolute;
     bottom: @FABsize;
     transform: translateX(0);
     transition: all .3s ease;
   }
+
   .location {
     left: @FABsize / 2;
+
     &.offset {
       transform: translateX(-@FABsize / 4);
     }
   }
+
   .search {
     right: @FABsize / 2;
+
     &.offset {
       transform: translateX(@FABsize / 4);
     }
@@ -198,16 +211,19 @@
         <cover-view class="btn">360</cover-view>
         <cover-view class="btn btn-cats" @tap="toggleCats">cat</cover-view>
       </cover-view>
-      <cover-view class="cats {{showCats ? 'active' : ''}}" @tap="switchCat">
+      <cover-view
+        class="cats {{showCats ? 'active' : ''}}"
+        @tap="switchCat"
+      >
         <block
-          wx:for="{{originMarkers}}"
+          wx:for="{{Ymode ? originMarkers : XmarkersTypes}}"
           wx:key="{{index}}"
         >
           <cover-view
-            class="cat {{currentCatIndex === index ? 'selected' : ''}}"
+            class="cat {{!Ymode ? item : ''}} {{ Ymode ? currentCatIndex === index ? 'selected' : '' : Xmarkers[XmarkersTypes[index]].active ? 'selected' : '' }}"
             id="{{index}}"
           >
-            {{item.type}}
+            {{Ymode ? item.type : item}}
           </cover-view>
         </block>
       </cover-view>
@@ -228,7 +244,9 @@
         <cover-view class="btn" id="you" wx:if="{{Ymode}}">游</cover-view>
         <cover-view class="btn" id="xun" wx:else>寻</cover-view>
       </cover-view>
+      <!-- SWITCH -->
       <cover-view class="switch" @tap="switchMode">{{Ymode ? 'Y' : 'X'}}</cover-view>
+      <!-- LOCATION & SEARCH -->
       <cover-view
         class="location {{Ymode && showDeck ? 'offset' : ''}}"
         @tap="locate"
@@ -249,7 +267,13 @@
       navigationBarTitleText: 'test'
     }
 
-    components = {}
+    computed = {
+      XmarkersTypes() {
+        if (!this.Xmarkers) return
+        // return Object.keys(this.Xmarkers).map(t => t.toUpperCase())
+        return Object.keys(this.Xmarkers)
+      }
+    }
 
     data = {
       mapCtx: null,
@@ -257,6 +281,8 @@
       school: config.school,
       originMarkers: [],
       markers: [],
+      Xmarkers: {},
+      Ymarkers: [],
       showCats: true,
       showDeck: false,
       currentCatIndex: 0,
@@ -276,7 +302,44 @@
       switchCat(e) {
         const self = this
         const catIndex = Number(e.target.id)
-        if (this.currentCatIndex === catIndex) return
+        if (this.Ymode) {
+          if (this.currentCatIndex !== catIndex) {
+            this.currentCatIndex = catIndex
+            this.markers = this.originMarkers[catIndex].data
+          }
+        } else {
+          const Xmarkers = this.Xmarkers
+          // LOST和FOUND至少激活一项
+          if (catIndex === 0) {
+            if (Xmarkers.lost.active) {
+              this.markers = Xmarkers.found.data
+              Xmarkers.lost.active = false
+              Xmarkers.found.active = true
+            } else {
+              if (!Xmarkers.found.active) {
+                this.markers = Xmarkers.lost.data
+                Xmarkers.lost.active = true
+              } else {
+                this.markers = Xmarkers.found.data.concat(Xmarkers.lost.data)
+                Xmarkers.lost.active = true
+              }
+            }
+          } else {
+            if (Xmarkers.found.active) {
+              this.markers = Xmarkers.lost.data
+              Xmarkers.lost.active = true
+              Xmarkers.found.active = false
+            } else {
+              if (!Xmarkers.lost.active) {
+                this.markers = Xmarkers.found.data
+                Xmarkers.found.active = true
+              } else {
+                this.markers = Xmarkers.found.data.concat(Xmarkers.lost.data)
+                Xmarkers.found.active = true
+              }
+            }
+          }
+        }
         // TODO MapContext回调失效问题
         // this.mapCtx.includePoints({
         //   padding: [50, 50, 50, 50],
@@ -291,14 +354,19 @@
           self.scale = 0
           self.$apply()
         }, 300)
-        this.currentCatIndex = catIndex
-        this.markers = this.originMarkers[catIndex].data
       },
       toggleDeck() {
         this.showDeck = !this.showDeck
       },
       switchMode() {
         this.Ymode = !this.Ymode
+        if (!this.Ymode) {
+          this.Xmarkers.lost.active = true
+          this.Xmarkers.found.active = true
+          this.markers = this.Xmarkers.lost.data.concat(this.Xmarkers.found.data)
+        } else {
+          this.markers = this.Ymarkers
+        }
         this.showDeck = true
       },
       locate() {
@@ -309,11 +377,22 @@
 
     onLoad() {
       this.$parent.loadMarkers().then(res => {
-        this.$parent.clearMarkers(res.Ymarkers).then(res => {
-          this.originMarkers = res
-          this.markers = res[0].data
-          this.$apply()
-        })
+        const Ymarkers = res.Ymarkers
+        const Xmarkers = res.Xmarkers
+        this.originMarkers = Ymarkers
+        this.markers = Ymarkers[0].data
+        this.Ymarkers = Ymarkers[0].data
+        this.Xmarkers = {
+          lost: {
+            data: Xmarkers[0].data,
+            active: true
+          },
+          found: {
+            data: Xmarkers[1].data,
+            active: true
+          }
+        }
+        this.$apply()
       })
 
       this.mapCtx = wx.createMapContext('map')
