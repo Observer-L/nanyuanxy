@@ -52,7 +52,13 @@
       }
 
       &.selected {
-        background: @themeColorX;
+        &.xun {
+          background: @themeColorX;
+        }
+
+        &.you {
+          background: @themeColorY;
+        }
       }
 
       &.lost {
@@ -70,27 +76,32 @@
     position: absolute;
     width: @FABsize;
     height: @FABsize;
-    background: @themeColorX;
-    border-radius: 50%;
     left: 50%;
-    bottom: @FABpadding * 4 + (@FABswicthSize + @FABpadding);
+    bottom: @FABsize * 1.5;
     transform: translateX(-50%);
 
     .btn {
       line-height: @FABsize;
       text-align: center;
+      border-radius: 50%;
+      background: @themeColorY;
+
+      &.xun {
+        background: @themeColorX;
+      }
     }
   }
 
   /* DECK */
   .deck {
     position: absolute;
-    width: @FABsize * 2;
-    height: @FABsize * 2;
+    width: @FABsize * 2.5;
+    height: @FABsize * 2.5;
     border-radius: 50%;
     left: 50%;
-    margin-left: -@FABsize;
-    bottom: @FABswicthSize + @FABpadding;
+    margin-left: -(@FABsize * 1.25);
+    bottom: @FABsize * 0.75;
+    /* background: @grayBg; */
 
     &.active {
       .option {
@@ -116,12 +127,12 @@
 
     .option {
       position: absolute;
-      width: @FABsize / 2.5;
-      height: @FABsize / 2.5;
+      width: @FABsize / 2;
+      height: @FABsize / 2;
       background: #fff;
       border-radius: 50%;
       text-align: center;
-      line-height: @FABsize / 2.5;
+      line-height: @FABsize / 2;
       opacity: 0;
       transition: all .3s ease;
 
@@ -166,24 +177,24 @@
   /* LOCATION & SEARCH */
   .location, .search {
     position: absolute;
-    bottom: @FABsize;
+    bottom: @FABsize * 1.75;
     transform: translateX(0);
     transition: all .3s ease;
   }
 
   .location {
-    left: @FABsize / 2;
+    left: @FABsize;
 
     &.offset {
-      transform: translateX(-@FABsize / 4);
+      transform: translateX(-@FABsize / 2);
     }
   }
 
   .search {
-    right: @FABsize / 2;
+    right: @FABsize;
 
     &.offset {
-      transform: translateX(@FABsize / 4);
+      transform: translateX(@FABsize / 2);
     }
   }
 </style>
@@ -220,7 +231,7 @@
           wx:key="{{index}}"
         >
           <cover-view
-            class="cat {{!Ymode ? item : ''}} {{ Ymode ? currentCatIndex === index ? 'selected' : '' : Xmarkers[XmarkersTypes[index]].active ? 'selected' : '' }}"
+            class="cat {{!Ymode ? item : ''}} {{ Ymode ? currentCatIndex === index ? 'you selected' : '' : Xmarkers[XmarkersTypes[index]].active ? 'xun selected' : '' }}"
             id="{{index}}"
           >
             {{Ymode ? item.type : item}}
@@ -241,8 +252,8 @@
         </block>
       </cover-view>
       <cover-view class="FAB" @tap="toggleDeck">
-        <cover-view class="btn" id="you" wx:if="{{Ymode}}">游</cover-view>
-        <cover-view class="btn" id="xun" wx:else>寻</cover-view>
+        <cover-view class="btn you" id="you" wx:if="{{Ymode}}">游</cover-view>
+        <cover-view class="btn xun" id="xun" wx:else>寻</cover-view>
       </cover-view>
       <!-- SWITCH -->
       <cover-view class="switch" @tap="switchMode">{{Ymode ? 'Y' : 'X'}}</cover-view>
