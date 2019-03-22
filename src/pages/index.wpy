@@ -1,5 +1,6 @@
 <style lang="less">
   @import "../styles/base";
+  /* SIDEBAR */
   .sidebar {
     position: absolute;
     right: @sidebarPadding;
@@ -8,12 +9,14 @@
     padding: @sidebarPadding;
     flex-direction: column;
     border: 1px dotted #aaa;
+
     .btn {
       width: @sidebarSize;
       height: @sidebarSize;
       border-radius: 50%;
       background: @grayBg;
       color: #fff;
+
       &:not(:last-child) {
         margin-bottom: @sidebarPadding;
       }
@@ -30,10 +33,12 @@
     opacity: 0;
     transform: translateX(@sidebarSize + (@sidebarPadding * 3));
     transition: all .3s ease;
+
     &.active {
       transform: translateX(0);
       opacity: 1;
     }
+
     .cat {
       width: 100%;
       height: @sidebarSize;
@@ -41,12 +46,131 @@
       line-height: @sidebarSize;
       text-align: center;
       transition: all .3s ease;
+
       &:not(:last-child) {
         margin-bottom: @sidebarPadding / 2;
       }
+
       &.selected {
         background: @themeColorX;
       }
+    }
+  }
+
+  /* FAB */
+  @FABsize: 160rpx;
+  @FABpadding: 20rpx;
+  @FABswicthSize: 50rpx;
+  .FAB {
+    position: absolute;
+    width: @FABsize;
+    height: @FABsize;
+    background: @themeColorX;
+    border-radius: 50%;
+    left: 50%;
+    bottom: @FABpadding * 4 + (@FABswicthSize + @FABpadding);
+    transform: translateX(-50%);
+
+    .btn {
+      line-height: @FABsize;
+      text-align: center;
+    }
+  }
+
+  .deck {
+    position: absolute;
+    width: @FABsize * 2;
+    height: @FABsize * 2;
+    border-radius: 50%;
+    left: 50%;
+    margin-left: -@FABsize;
+    bottom: @FABswicthSize + @FABpadding;
+
+    &.active {
+      .option {
+        opacity: 1;
+
+        &.top {
+          transform: translate(-50%, 0);
+        }
+
+        &.right {
+          transform: translate(0, -50%);
+        }
+
+        &.bottom {
+          transform: translate(-50%, 0);
+        }
+
+        &.left {
+          transform: translate(0, -50%);
+        }
+      }
+    }
+
+    .option {
+      position: absolute;
+      width: @FABsize / 2.5;
+      height: @FABsize / 2.5;
+      background: #fff;
+      border-radius: 50%;
+      text-align: center;
+      line-height: @FABsize / 2.5;
+      opacity: 0;
+      transition: all .3s ease;
+
+      &.top {
+        left: 50%;
+        top: 0;
+        transform: translate(-50%, @FABsize);
+      }
+
+      &.right {
+        right: 0;
+        top: 50%;
+        transform: translate(-@FABsize, -50%);
+      }
+
+      &.bottom {
+        left: 50%;
+        bottom: 0;
+        transform: translate(-50%, -@FABsize);
+      }
+
+      &.left {
+        left: 0;
+        top: 50%;
+        transform: translate(@FABsize, -50%);
+      }
+    }
+  }
+
+  .switch {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: @FABswicthSize;
+    height: @FABswicthSize;
+    text-align: center;
+    transform: translateX(-50%);
+    background: @grayBg;
+  }
+  .location, .search {
+    position: absolute;
+    bottom: @FABsize;
+    transform: translateX(0);
+    transition: all .3s ease;
+  }
+  .location {
+    left: @FABsize / 2;
+    &.offset {
+      transform: translateX(-@FABsize / 4);
+    }
+  }
+  .search {
+    right: @FABsize / 2;
+    &.offset {
+      transform: translateX(@FABsize / 4);
     }
   }
 </style>
@@ -67,6 +191,7 @@
       enable-rotate
       style="width: 100%; height: 100vh;"
     >
+      <!-- SIDEBAR -->
       <cover-view class="sidebar">
         <cover-view class="btn">comment</cover-view>
         <cover-view class="btn">intro</cover-view>
@@ -86,6 +211,26 @@
           </cover-view>
         </block>
       </cover-view>
+      <!-- FAB -->
+      <cover-view class="deck {{showDeck ? 'active' : ''}}">
+        <block wx:if="{{Ymode}}">
+          <cover-view class="option top">中</cover-view>
+          <cover-view class="option right">东</cover-view>
+          <cover-view class="option bottom">南</cover-view>
+          <cover-view class="option left">西</cover-view>
+        </block>
+        <block wx:else>
+          <cover-view class="option top">Lost</cover-view>
+          <cover-view class="option bottom">Found</cover-view>
+        </block>
+      </cover-view>
+      <cover-view class="FAB" @tap="toggleDeck">
+        <cover-view class="btn" id="you" wx:if="{{Ymode}}">游</cover-view>
+        <cover-view class="btn" id="xun" wx:else>寻</cover-view>
+      </cover-view>
+      <cover-view class="switch" @tap="switchMode">{{Ymode ? 'Y' : 'X'}}</cover-view>
+      <cover-view class="location {{Ymode && showDeck ? 'offset' : ''}}">定位</cover-view>
+      <cover-view class="search {{Ymode && showDeck ? 'offset' : ''}}">搜索</cover-view>
     </map>
   </view>
 </template>
@@ -103,20 +248,20 @@
 
     data = {
       school: config.school,
-      latitude: null,
-      longitude: null,
       originMarkers: [],
       markers: [],
       showCats: true,
+      showDeck: false,
       currentCatIndex: 0,
-      scale: 0
+      scale: 0,
+      Ymode: true
     }
 
     methods = {
       handleMarkerTap(e) {
         const markerId = e.markerId
         console.log(markerId)
-      //  利用ID跳转到该地点详情页
+        //  利用ID跳转到该地点详情页
       },
       toggleCats() {
         this.showCats = !this.showCats
@@ -133,6 +278,13 @@
         }, 300)
         this.currentCatIndex = catIndex
         this.markers = this.originMarkers[catIndex].data
+      },
+      toggleDeck() {
+        this.showDeck = !this.showDeck
+      },
+      switchMode() {
+        this.Ymode = !this.Ymode
+        this.showDeck = true
       }
     }
 
