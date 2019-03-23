@@ -323,9 +323,9 @@
 
     methods = {
       handleMarkerTap(e) {
-        const markerId = e.markerId
-        console.log(markerId)
-        //  利用ID跳转到该地点详情页
+        wx.navigateTo({
+          url: `./detail?mode=${this.Ymode ? 'you' : 'xun'}&id=${e.markerId}`
+        })
       },
       toggleCats() {
         this.showCats = !this.showCats

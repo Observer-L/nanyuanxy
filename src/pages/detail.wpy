@@ -1,0 +1,31 @@
+<style lang="less">
+  @import "../styles/base";
+</style>
+
+<template>
+  <view>
+    DETAIL
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Detail extends wepy.page {
+    config = {
+      navigationBarTitleText: 'test'
+    }
+
+    computed = {
+    }
+
+    data = {
+    }
+
+    methods = {}
+
+    onLoad(options) {
+      console.log(options)
+    }
+  }
+</script>
