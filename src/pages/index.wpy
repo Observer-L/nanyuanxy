@@ -93,7 +93,7 @@
   }
 
   /* DECK */
-  .deck {
+  .deck, .bg {
     position: absolute;
     width: @FABsize * 2.5;
     height: @FABsize * 2.5;
@@ -101,8 +101,20 @@
     left: 50%;
     margin-left: -(@FABsize * 1.25);
     bottom: @FABsize * 0.75;
-    /* background: @grayBg; */
-
+    &.xun {
+      width: @FABsize;
+      margin-left: -(@FABsize * 0.5);
+    }
+  }
+  .bg {
+    background: @grayBg;
+    transform: scale(0);
+    transition: all .3s ease;
+    &.active {
+      transform: scale(1);
+    }
+  }
+  .deck {
     &.active {
       .option {
         opacity: 1;
@@ -246,7 +258,8 @@
         </cover-view>
       </cover-view>
       <!-- FAB -->
-      <cover-view class="deck {{showDeck ? 'active' : ''}}">
+      <cover-view class="bg {{showDeck ? 'active' : ''}} {{!Ymode ? 'xun' : ''}}"></cover-view>
+      <cover-view class="deck {{showDeck ? 'active' : ''}} {{!Ymode ? 'xun' : ''}}">
         <block wx:if="{{Ymode}}">
           <cover-view class="option top">中</cover-view>
           <cover-view class="option right">东</cover-view>
