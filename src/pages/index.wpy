@@ -226,17 +226,24 @@
         class="cats {{showCats ? 'active' : ''}}"
         @tap="switchCat"
       >
-        <block
-          wx:for="{{Ymode ? originMarkers : XmarkersTypes}}"
+        <cover-view
+          wx:if="{{Ymode}}"
+          wx:for="{{originMarkers}}"
           wx:key="{{index}}"
+          class="cat {{currentCatIndex === index ? 'you selected' : ''}}"
+          id="{{index}}"
         >
-          <cover-view
-            class="cat {{!Ymode ? item : ''}} {{ Ymode ? currentCatIndex === index ? 'you selected' : '' : Xmarkers[XmarkersTypes[index]].active ? 'xun selected' : '' }}"
-            id="{{index}}"
-          >
-            {{Ymode ? item.type : item}}
-          </cover-view>
-        </block>
+          {{item.type}}
+        </cover-view>
+        <cover-view
+          wx:if="{{!Ymode}}"
+          wx:for="{{XmarkersTypes}}"
+          wx:key="{{index}}"
+          id="{{index}}"
+          class="cat {{Xmarkers[XmarkersTypes[index]].active ? 'xun selected' : ''}} {{item}}"
+        >
+          {{item}}
+        </cover-view>
       </cover-view>
       <!-- FAB -->
       <cover-view class="deck {{showDeck ? 'active' : ''}}">
