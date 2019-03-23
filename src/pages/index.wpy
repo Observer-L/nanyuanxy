@@ -93,7 +93,7 @@
   }
 
   /* DECK */
-  .deck, .bg {
+  .deck {
     position: absolute;
     width: @FABsize * 2.5;
     height: @FABsize * 2.5;
@@ -106,14 +106,14 @@
       margin-left: -(@FABsize * 0.5);
     }
   }
-  .bg {
+  /* .bg {
     background: @grayBg;
     transform: scale(0);
     transition: all .3s ease;
     &.active {
       transform: scale(1);
     }
-  }
+  } */
   .deck {
     &.active {
       .option {
