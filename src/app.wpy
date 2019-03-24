@@ -6,6 +6,13 @@
   import 'wepy-async-function'
   import config from './config'
 
+  import { setStore } from 'wepy-redux'
+  import configStore from './store'
+
+  const store = configStore()
+  wepy.$store = store
+  setStore(store)
+
   let mockData = config.DEBUG ? require('./mock') : null
 
   export default class extends wepy.app {

@@ -10,6 +10,13 @@
 
 <script>
   import wepy from 'wepy'
+  import {connect} from 'wepy-redux'
+
+  @connect({
+    markers (state) {
+      return state.markers.markers
+    }
+  })
 
   export default class Detail extends wepy.page {
     config = {
@@ -26,6 +33,17 @@
 
     onLoad(options) {
       console.log(options)
+      let data = wepy.$store.getState().markers.markers
+      if (options.mode === 'you') {
+        data = data.Ymarkers
+      } else {
+        data = data.Xmarkers
+      }
+      this.getTargetData(data)
+    }
+
+    getTargetData(data) {
+      console.log(data)
     }
   }
 </script>

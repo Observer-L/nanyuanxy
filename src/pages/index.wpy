@@ -291,7 +291,17 @@
 
 <script>
   import wepy from 'wepy'
+  import {connect} from 'wepy-redux'
+  import {saveMarkers} from '../store/actions'
   import config from '../config'
+
+  @connect({
+    Rmarkers (state) {
+      return state.markers.markers
+    }
+  }, {
+    saveMarkers
+  })
 
   export default class Index extends wepy.page {
     config = {
@@ -424,6 +434,8 @@
           }
         }
         this.$apply()
+
+        wepy.$store.dispatch(saveMarkers({Xmarkers, Ymarkers}))
       })
 
       this.mapCtx = wx.createMapContext('map')
