@@ -1,3 +1,2 @@
 export const SAVE_MARKERS = 'SAVE_MARKERS'
-export const LOAD = 'LOAD'
-export const CLEAN = 'CLEAN'
+export const GET_TARGET_MARKER = 'GET_TARGET_MARKER'

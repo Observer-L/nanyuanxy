@@ -14,8 +14,8 @@ export const Ymarkers = [
         location: [23.634524, 113.676851],
         desc: '文字介绍',
         images: [
-          'img1',
-          'img2'
+          'https://via.placeholder.com/400',
+          'https://via.placeholder.com/400'
         ],
         contact: {
           phone: '123456789',
@@ -29,7 +29,7 @@ export const Ymarkers = [
         location: [23.628803, 113.679357],
         desc: '文字介绍',
         images: [
-          'img1'
+          'https://via.placeholder.com/400'
         ],
         panorama: '全景网页外链'
       }
@@ -47,8 +47,8 @@ export const Ymarkers = [
         location: [23.631698, 113.675730],
         desc: '文字介绍',
         images: [
-          'img1',
-          'img2'
+          'https://via.placeholder.com/400',
+          'https://via.placeholder.com/400'
         ],
         contact: {
           phone: '123456789',
@@ -62,7 +62,7 @@ export const Ymarkers = [
         location: [23.634966, 113.678976],
         desc: '文字介绍',
         images: [
-          'img1'
+          'https://via.placeholder.com/400'
         ],
         panorama: '全景网页外链'
       }
@@ -80,8 +80,8 @@ export const Ymarkers = [
         location: [23.633639, 113.676760],
         desc: '文字介绍',
         images: [
-          'img1',
-          'img2'
+          'https://via.placeholder.com/400',
+          'https://via.placeholder.com/400'
         ],
         contact: {
           phone: '123456789',
@@ -95,7 +95,7 @@ export const Ymarkers = [
         location: [23.634519, 113.677828],
         desc: '文字介绍',
         images: [
-          'img1'
+          'https://via.placeholder.com/400'
         ],
         panorama: '全景网页外链'
       }
@@ -113,13 +113,13 @@ export const Xmarkers = [
         name: '校园卡',
         status: 0,
         cat: '证件',
-        location: [23.631629,113.679872],
+        location: [23.631629, 113.679872],
         area: ['中区', '图书馆'],
         range: 30,
         desc: '文字介绍',
         images: [
-          'img1',
-          'img2'
+          'https://via.placeholder.com/400',
+          'https://via.placeholder.com/400'
         ],
         contact: {
           phone: 123456789,
@@ -133,13 +133,13 @@ export const Xmarkers = [
         name: 'U盘',
         status: 0,
         cat: '数码产品',
-        location: [23.631776,113.676835],
+        location: [23.631776, 113.676835],
         area: ['西区', '1教'],
         range: 20,
         desc: '文字介绍',
         images: [
-          'img1',
-          'img2'
+          'https://via.placeholder.com/400',
+          'https://via.placeholder.com/400'
         ],
         contact: {
           phone: 123456789,
@@ -164,8 +164,8 @@ export const Xmarkers = [
         range: 30,
         desc: '文字介绍',
         images: [
-          'img1',
-          'img2'
+          'https://via.placeholder.com/400',
+          'https://via.placeholder.com/400'
         ],
         contact: {
           phone: 123456789,
@@ -179,13 +179,13 @@ export const Xmarkers = [
         name: '水杯',
         status: 0,
         cat: '生活用品',
-        location: [23.632140,113.674850],
+        location: [23.632140, 113.674850],
         area: ['西区', '西操'],
         range: 20,
         desc: '文字介绍',
         images: [
-          'img1',
-          'img2'
+          'https://via.placeholder.com/400',
+          'https://via.placeholder.com/400'
         ],
         contact: {
           phone: 123456789,

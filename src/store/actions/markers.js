@@ -1,12 +1,5 @@
 import { createAction } from 'redux-actions'
-import {SAVE_MARKERS} from '../types'
-
-// export const actionCreators = createActions({
-//   [SAVE_MARKERS]: (payload) => {
-//     console.log(payload, 'in actionCreators')
-//     return payload
-//   }
-// })
+import {SAVE_MARKERS, GET_TARGET_MARKER} from '../types'
 
 //
 // export const loadMarkers = createAction(LOAD, () => {
@@ -16,4 +9,6 @@ import {SAVE_MARKERS} from '../types'
 //   })
 // })
 //
+
 export const saveMarkers = createAction(SAVE_MARKERS, payload => payload)
+export const getTargetMarker = createAction(GET_TARGET_MARKER, payload => payload)

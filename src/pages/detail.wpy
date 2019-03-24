@@ -1,16 +1,46 @@
 <style lang="less">
   @import "../styles/base";
+  #swiper {
+    height: 400rpx;
+    .slide-image {
+      width: 100%;
+      height: 100%;
+    }
+  }
 </style>
 
 <template>
   <view>
+    <swiper
+      id="swiper"
+      indicator-dots="{{marker.images.length > 1}}"
+      autoplay="{{true}}"
+      interval="{{5000}}"
+      duration="{{1000}}"
+    >
+      <block
+        wx:for="{{marker.images}}"
+        wx:key="{{index}}"
+      >
+        <swiper-item>
+          <image
+            src="{{item}}"
+            data-id="{{index}}"
+            class="slide-image"
+            @tap="previewImage"
+          ></image>
+        </swiper-item>
+      </block>
+    </swiper>
     DETAIL
+    {{marker.name}}
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
   import {connect} from 'wepy-redux'
+  import {getTargetMarker} from '../store/actions'
 
   @connect({
     markers (state) {
@@ -27,23 +57,24 @@
     }
 
     data = {
+      marker: {}
     }
 
-    methods = {}
+    methods = {
+      previewImage(e) {
+        const targetId = e.target.dataset.id
+        wx.previewImage({
+          current: this.marker.images[targetId], // 当前显示图片的http链接
+          urls: this.marker.images // 需要预览的图片http链接列表
+        })
+      }
+    }
 
     onLoad(options) {
-      console.log(options)
-      let data = wepy.$store.getState().markers.markers
-      if (options.mode === 'you') {
-        data = data.Ymarkers
-      } else {
-        data = data.Xmarkers
-      }
-      this.getTargetData(data)
-    }
-
-    getTargetData(data) {
-      console.log(data)
+      options.id = Number(options.id)
+      options.type = options.mode === 'you' ? decodeURI(options.type) : ''
+      wepy.$store.dispatch(getTargetMarker(options))
+      this.marker = wepy.$store.getState().markers.marker
     }
   }
 </script>

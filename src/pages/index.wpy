@@ -334,7 +334,7 @@
     methods = {
       handleMarkerTap(e) {
         wx.navigateTo({
-          url: `./detail?mode=${this.Ymode ? 'you' : 'xun'}&id=${e.markerId}`
+          url: `./detail?id=${e.markerId}&${this.Ymode ? 'mode=you&type=' + encodeURI(this.originMarkers[this.currentCatIndex].type) : 'xun'}`
         })
       },
       toggleCats() {
