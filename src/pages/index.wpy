@@ -230,7 +230,7 @@
       <!-- SIDEBAR -->
       <cover-view class="sidebar">
         <cover-view class="btn">comment</cover-view>
-        <cover-view class="btn">intro</cover-view>
+        <cover-view class="btn" @tap="handleMarkerTap">intro</cover-view>
         <cover-view class="btn">360</cover-view>
         <cover-view class="btn btn-cats" @tap="toggleCats">cat</cover-view>
       </cover-view>
@@ -333,9 +333,16 @@
 
     methods = {
       handleMarkerTap(e) {
-        wx.navigateTo({
-          url: `./detail?id=${e.markerId}&${this.Ymode ? 'mode=you&type=' + encodeURI(this.originMarkers[this.currentCatIndex].type) : 'xun'}`
-        })
+        if (e.markerId !== undefined) {
+          console.log(1)
+          wx.navigateTo({
+            url: `./detail?id=${e.markerId}&${this.Ymode ? 'mode=you&type=' + encodeURI(this.originMarkers[this.currentCatIndex].type) : 'xun'}`
+          })
+        } else {
+          wx.navigateTo({
+            url: './detail'
+          })
+        }
       },
       toggleCats() {
         this.showCats = !this.showCats

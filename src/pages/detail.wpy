@@ -122,6 +122,7 @@
   import wepy from 'wepy'
   import { connect } from 'wepy-redux'
   import { getTargetMarker } from '../store/actions'
+  import config from '../config'
 
   @connect({
     markers(state) {
@@ -151,10 +152,16 @@
     }
 
     onLoad(options) {
-      options.id = Number(options.id)
-      options.type = options.mode === 'you' ? decodeURI(options.type) : ''
-      wepy.$store.dispatch(getTargetMarker(options))
-      this.marker = wepy.$store.getState().markers.marker
+      console.log(options)
+      if (options.id) {
+        console.log(options.id, 1)
+        options.id = Number(options.id)
+        options.type = options.mode === 'you' ? decodeURI(options.type) : ''
+        wepy.$store.dispatch(getTargetMarker(options))
+        this.marker = wepy.$store.getState().markers.marker
+      } else {
+        this.marker = config.school
+      }
     }
   }
 </script>

@@ -3,12 +3,12 @@ export default {
   short_name: '南苑',
   location: [23.632674, 113.679404],
   scale: 16,
-  logo: '/images/logo/校徽.png',
+  logo: 'nfsysu',
   music: '校歌.mp3',
   desc: '校园介绍文字',
   images: [
-    'img1',
-    'img2'
+    'https://via.placeholder.com/400',
+    'https://via.placeholder.com/400'
   ],
   contact: {
     phone: '123456789',
