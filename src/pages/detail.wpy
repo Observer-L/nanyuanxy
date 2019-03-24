@@ -1,10 +1,65 @@
 <style lang="less">
   @import "../styles/base";
+
+  @swiperSize: 400rpx;
+  @logoSize: 140rpx;
+  @padding: 10rpx;
   #swiper {
-    height: 400rpx;
+    height: @swiperSize;
+
     .slide-image {
       width: 100%;
       height: 100%;
+    }
+  }
+
+  .header {
+    .head {
+      display: flex;
+      padding: @padding*2 @padding;
+
+      .logo {
+        position: relative;
+        top: -@logoSize / 2;
+        left: 0;
+        width: @logoSize;
+        height: @logoSize;
+        margin-bottom: -@logoSize / 2;
+        border-radius: 50%;
+        border: 3px solid #fff;
+      }
+
+      .title {
+        display: flex;
+        flex: 1;
+        justify-content: space-between;
+        margin: 0 @padding * 2;
+
+        .name {
+          letter-spacing: 2px;
+        }
+      }
+    }
+    .music-player {
+      background: @grayBg;
+    }
+    .more {
+      padding: @padding;
+      .info {
+        font-size: 12px;
+        padding: @padding 0;
+      }
+      .info:nth-child(odd) {
+        background: @themeColorY;
+      }
+    }
+    .desc {
+      padding: @padding*2 @padding;
+      .title{
+      }
+      .content {
+        font-size: 16px;
+      }
     }
   }
 </style>
@@ -32,18 +87,44 @@
         </swiper-item>
       </block>
     </swiper>
-    DETAIL
-    {{marker.name}}
+    <view class="header">
+      <view class="head {{}}">
+        <image
+          class="logo"
+          wx:if="{{marker.logo}}"
+          src="/images/logo/{{marker.logo}}.png"
+        ></image>
+        <view class="title">
+          <view class="name">{{marker.name}}</view>
+          <view class="action">导航</view>
+        </view>
+      </view>
+      <view
+        wx:if="{{marker.music}}"
+        class="music-player"
+      >
+        TODO音乐播放器
+      </view>
+      <view class="more">
+        <view class="info address" wx:if="{{marker.contact.address}}">icon {{marker.contact.address}}</view>
+        <view class="info phone" wx:if="{{marker.contact.phone}}">icon {{marker.contact.phone}}</view>
+        <view class="info panorama" wx:if="{{marker.panorama}}">icon {{marker.panorama}}</view>
+      </view>
+      <view class="desc">
+        <view class="title">简介</view>
+        <view class="content">{{marker.desc}}</view>
+      </view>
+    </view>
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
-  import {connect} from 'wepy-redux'
-  import {getTargetMarker} from '../store/actions'
+  import { connect } from 'wepy-redux'
+  import { getTargetMarker } from '../store/actions'
 
   @connect({
-    markers (state) {
+    markers(state) {
       return state.markers.markers
     }
   })
@@ -53,8 +134,7 @@
       navigationBarTitleText: 'test'
     }
 
-    computed = {
-    }
+    computed = {}
 
     data = {
       marker: {}

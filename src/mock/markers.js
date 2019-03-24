@@ -9,7 +9,7 @@ export const Ymarkers = [
       {
         name: '孙中山铜像',
         short_name: '铜像',
-        logo: '/images/logo/example.png',
+        logo: 'nfsysu',
         music: 'music.mp3',
         location: [23.634524, 113.676851],
         desc: '文字介绍',
