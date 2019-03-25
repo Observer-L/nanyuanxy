@@ -1,0 +1,135 @@
+<style lang="less">
+  @import "../styles/base";
+
+  .active {
+    &.xun {
+      .van-tabs__line {
+        background-color: @themeColorX;
+      }
+    }
+
+    &.you {
+      .van-tabs__line {
+        background-color: @themeColorY;
+      }
+    }
+  }
+
+  @cellIconSize: 60rpx;
+
+  .cell-icon {
+    position: relative;
+    width: @cellIconSize;
+    height: @cellIconSize;
+    bottom: @cellIconSize / 10;
+    padding-right: @cellIconSize / 6;
+  }
+</style>
+
+<template>
+  <view>
+    <!-- SEARCH -->
+    <van-search value="{{ value }}" placeholder="请输入搜索关键词"></van-search>
+    <!-- TABS -->
+    <van-tabs active="{{activeMode}}" @change="onChangeMode" nav-class="active {{mode}}">
+      <van-tab title="游">
+        <van-tabs active="{{ activeTypeY }}" @change="onChangeTypeY" nav-class="active {{mode}}">
+          <van-tab
+            wx:for="{{markers.Ymarkers}}"
+            wx:key="{{index}}"
+            title="{{item.type}}"
+          >
+            <van-cell
+              wx:for="{{item.data}}"
+              wx:for-item="marker"
+              wx:key="{{marker.id}}"
+              id="{{marker.id}}"
+              title="{{marker.name}}"
+              border="{{ false }}"
+              clickable="{{true}}"
+              @tap="jumpTo"
+            >
+              <image slot="icon" src="{{marker.iconPath}}" class="cell-icon"></image>
+            </van-cell>
+          </van-tab>
+        </van-tabs>
+      </van-tab>
+      <van-tab title="寻">
+        <van-tabs active="{{ activeTypeX }}" @change="onChangeTypeX" nav-class="active {{mode}}">
+          <van-tab
+            wx:for="{{markers.Xmarkers}}"
+            wx:key="{{index}}"
+            title="{{item.type}}"
+          >
+            <van-cell
+              wx:for="{{item.data}}"
+              wx:for-item="marker"
+              wx:key="{{marker.id}}"
+              id="{{marker.id}}"
+              title="{{marker.name}}"
+              border="{{ false }}"
+              clickable="{{true}}"
+              @tap="jumpTo"
+              clickable="{{true}}"
+            >
+              <image slot="icon" src="{{marker.iconPath}}" class="cell-icon"></image>
+            </van-cell>
+          </van-tab>
+        </van-tabs>
+      </van-tab>
+    </van-tabs>
+
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Search extends wepy.page {
+    config = {
+      navigationBarTitleText: 'test',
+      usingComponents: {
+        'van-search': '../components/vant/search/index',
+        'van-tab': '../components/vant/tab/index',
+        'van-tabs': '../components/vant/tabs/index',
+        'van-cell': '../components/vant/cell/index'
+      }
+    }
+
+    computed = {
+      activeMode() {
+        return this.mode === 'you' ? 0 : 1
+      }
+    }
+
+    data = {
+      mode: 'you',
+      markers: {},
+      activeTypeY: 0,
+      activeTypeX: 0
+    }
+
+    methods = {
+      onChangeMode(e) {
+        console.log(e)
+        this.mode = e.detail.title === '游' ? 'you' : 'xun'
+      },
+      onChangeTypeY(e) {
+        this.activeTypeY = e.detail.index
+      },
+      onChangeTypeX(e) {
+        this.activeTypeX = e.detail.index
+      },
+      jumpTo(e) {
+        wx.navigateTo({
+          url: `./detail?id=${e.target.id}&${this.mode === 'you' ? 'mode=you&type=' + encodeURI(this.markers.Ymarkers[this.activeTypeY].type) : 'xun'}`
+        })
+      }
+    }
+
+    onLoad(options) {
+      this.mode = options.mode
+      this.markers = wepy.$store.getState().markers.markers
+    }
+  }
+</script>

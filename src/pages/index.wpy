@@ -286,7 +286,10 @@
       >
         定位
       </cover-view>
-      <cover-view class="search {{Ymode && showDeck ? 'offset' : ''}}">搜索</cover-view>
+      <cover-view
+        class="search {{Ymode && showDeck ? 'offset' : ''}}"
+        @tap="search"
+      >搜索</cover-view>
     </map>
   </view>
 </template>
@@ -385,7 +388,7 @@
         setTimeout(() => {
           self.scale = 0
           self.$apply()
-        }, 200)
+        }, 300)
         // includePoints
         this.includePoints(125)
       },
@@ -406,6 +409,11 @@
       locate() {
         // 使用MapContext而非wx.getLocation
         this.mapCtx.moveToLocation()
+      },
+      search() {
+        wx.navigateTo({
+          url: `./search?mode=${this.Ymode ? 'you' : 'xun'}`
+        })
       }
     }
 

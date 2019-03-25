@@ -20,7 +20,8 @@
     config = {
       pages: [
         'pages/index',
-        'pages/detail'
+        'pages/detail',
+        'pages/search'
       ],
       window: {
         backgroundTextStyle: 'light',
@@ -114,7 +115,7 @@
             }
           }
         }
-
+        console.log(cleanData)
         store.dispatch(saveMarkers(cleanData))
         resolve(cleanData)
       })

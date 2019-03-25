@@ -23,6 +23,7 @@ export default handleActions({
   [GET_TARGET_MARKER] (state, action) {
     const payload = action.payload
     let markers
+    console.log(state, action)
     if (payload.mode === 'you') {
       for (const m of state.markers.Ymarkers) {
         if (m.type === payload.type) {
