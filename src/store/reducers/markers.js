@@ -1,10 +1,22 @@
 import { handleActions } from 'redux-actions'
-import { SAVE_MARKERS, GET_TARGET_MARKER } from '../types'
+import { LOAD_MARKERS_X, LOAD_MARKERS_Y, SAVE_MARKERS, GET_TARGET_MARKER } from '../types'
 
 export default handleActions({
-  [SAVE_MARKERS] (state, action) {
-    console.log(action.type, action.payload)
+  [LOAD_MARKERS_X] (state, action) {
     return {
+      ...state,
+      Xmarkers: action.payload.Xmarkers
+    }
+  },
+  [LOAD_MARKERS_Y] (state, action) {
+    return {
+      ...state,
+      Ymarkers: action.payload.Ymarkers
+    }
+  },
+  [SAVE_MARKERS] (state, action) {
+    return {
+      ...state,
       markers: Object.assign({}, state.markers, action.payload)
     }
   },
@@ -27,5 +39,7 @@ export default handleActions({
     }
   }
 }, {
-  markers: {}
+  markers: {},
+  Xmarkers: [],
+  Ymarkers: []
 })

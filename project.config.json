@@ -14,5 +14,6 @@
 	"projectname": "nanyuanxy",
 	"miniprogramRoot": "dist/",
 	"libVersion": "2.6.4",
+	"cloudfunctionRoot": "cloudfunction/",
 	"condition": {}
 }

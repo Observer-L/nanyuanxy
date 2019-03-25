@@ -1,2 +1,4 @@
+export const LOAD_MARKERS_X = 'LOAD_MARKERS_X'
+export const LOAD_MARKERS_Y = 'LOAD_MARKERS_Y'
 export const SAVE_MARKERS = 'SAVE_MARKERS'
 export const GET_TARGET_MARKER = 'GET_TARGET_MARKER'

@@ -292,7 +292,7 @@
 <script>
   import wepy from 'wepy'
   import {connect} from 'wepy-redux'
-  import {saveMarkers} from '../store/actions'
+  import { loadMarkersY, saveMarkers } from '../store/actions'
   import config from '../config'
 
   @connect({
@@ -423,7 +423,7 @@
       }
     }
 
-    onLoad() {
+    async onLoad() {
       this.$parent.loadMarkers().then(res => {
         const Ymarkers = res.Ymarkers
         const Xmarkers = res.Xmarkers
@@ -441,8 +441,6 @@
           }
         }
         this.$apply()
-
-        wepy.$store.dispatch(saveMarkers({Xmarkers, Ymarkers}))
       })
 
       this.mapCtx = wx.createMapContext('map')

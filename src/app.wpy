@@ -4,6 +4,7 @@
 <script>
   import wepy from 'wepy'
   import 'wepy-async-function'
+  import { loadMarkersX, loadMarkersY, saveMarkers } from './store/actions'
   import config from './config'
 
   import { setStore } from 'wepy-redux'
@@ -41,23 +42,54 @@
       this.use('requestfix')
     }
 
-    onLaunch() {
+    async onLaunch() {
       console.log('运行环境：', __ENV_PROD__ ? 'pro' : 'dev')
       console.log('运行配置：', config)
-      // wx.cloud.init({
-      //   env: config.env,
-      //   traceUser: true
-      // })
+      wx.cloud.init({
+        env: config.env,
+        traceUser: true
+      })
     }
 
     loadMarkers() {
+      const self = this
       return new Promise((resolve, reject) => {
         if (config.DEBUG) {
-          //  加载本地数据
+          //  加载本地mock数据
           resolve(this.clearMarkers(mockData))
         } else {
-          //  加载服务器数据
-          console.log('加载服务器数据')
+          //  加载云数据库数据
+          let Ymarkers = wx.getStorageSync('Ymarkers')
+          let Xmarkers
+          if (!Ymarkers) {
+            console.log('没Y缓存')
+            store.dispatch(loadMarkersX())
+              .then(res => {
+                Xmarkers = res.payload.Xmarkers
+                store.dispatch(loadMarkersY())
+                  .then(res => {
+                    const Ymarkers = res.payload.Ymarkers
+                    wx.setStorage({
+                      key: 'Ymarkers',
+                      data: Ymarkers
+                    })
+                    resolve(self.clearMarkers({
+                      Xmarkers,
+                      Ymarkers
+                    }))
+                  })
+              })
+          } else {
+            console.log('有Y缓存')
+            store.dispatch(loadMarkersX())
+              .then(res => {
+                Xmarkers = res.payload.Xmarkers
+                resolve(self.clearMarkers({
+                  Xmarkers,
+                  Ymarkers
+                }))
+              })
+          }
         }
       })
     }
@@ -82,6 +114,8 @@
             }
           }
         }
+
+        store.dispatch(saveMarkers(cleanData))
         resolve(cleanData)
       })
     }

@@ -144,6 +144,7 @@
     methods = {
       previewImage(e) {
         const targetId = e.target.dataset.id
+        console.log(this.marker.images[targetId])
         wx.previewImage({
           current: this.marker.images[targetId], // 当前显示图片的http链接
           urls: this.marker.images // 需要预览的图片http链接列表
