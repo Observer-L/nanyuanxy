@@ -101,11 +101,13 @@
     left: 50%;
     margin-left: -(@FABsize * 1.25);
     bottom: @FABsize * 0.75;
+
     &.xun {
       width: @FABsize;
       margin-left: -(@FABsize * 0.5);
     }
   }
+
   /* .bg {
     background: @grayBg;
     transform: scale(0);
@@ -291,17 +293,7 @@
 
 <script>
   import wepy from 'wepy'
-  import {connect} from 'wepy-redux'
-  import { loadMarkersY, saveMarkers } from '../store/actions'
   import config from '../config'
-
-  @connect({
-    Rmarkers (state) {
-      return state.markers.markers
-    }
-  }, {
-    saveMarkers
-  })
 
   export default class Index extends wepy.page {
     config = {
@@ -388,20 +380,14 @@
             }
           }
         }
-        // TODO MapContext回调失效问题
-        // this.mapCtx.includePoints({
-        //   padding: [50, 50, 50, 50],
-        //   points: self.markers,
-        //   success(res) {
-        //     console.log(res)
-        //   }
-        // })
         // POP效果
         this.scale = 16
         setTimeout(() => {
           self.scale = 0
           self.$apply()
-        }, 300)
+        }, 200)
+        // includePoints
+        this.includePoints(125)
       },
       toggleDeck() {
         this.showDeck = !this.showDeck
@@ -423,7 +409,7 @@
       }
     }
 
-    async onLoad() {
+    onLoad() {
       this.$parent.loadMarkers().then(res => {
         const Ymarkers = res.Ymarkers
         const Xmarkers = res.Xmarkers
@@ -444,6 +430,13 @@
       })
 
       this.mapCtx = wx.createMapContext('map')
+    }
+
+    includePoints(padding) {
+      this.mapCtx.includePoints({
+        padding: [padding, padding, padding, padding],
+        points: this.markers
+      })
     }
   }
 </script>
