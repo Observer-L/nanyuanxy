@@ -33,10 +33,13 @@
         'scope.userLocation': {
           desc: '您的位置信息将用于小程序位置接口的效果展示'
         }
-      }
+      },
+      requiredBackgroundModes: ['audio']
     }
 
-    globalData = {}
+    globalData = {
+      audioCtx: null
+    }
 
     constructor() {
       super()
@@ -44,6 +47,7 @@
     }
 
     async onLaunch() {
+      this.globalData.audioCtx = wx.getBackgroundAudioManager()
       console.log('运行环境：', __ENV_PROD__ ? 'pro' : 'dev')
       console.log('运行配置：', config)
       wx.cloud.init({

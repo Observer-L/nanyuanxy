@@ -92,6 +92,29 @@
     }
   }
 
+  /*　MP PREVIEW　*/
+  .mp-preview {
+    position: absolute;
+    display: flex;
+    justify-content:center;
+    padding-right:@sidebarSize + @sidebarPadding * 2;
+    padding-left:@sidebarSize / 2;
+    align-items:center;
+    height: @sidebarSize;
+    top: @sidebarPadding * 3 + @sidebarSize;
+    right: @sidebarPadding * 2;
+    background: @grayBg;
+    border-radius: @sidebarSize;
+    font-size: 14px;
+    transform: translateX(50vw);
+    opacity: 0;
+    transition: all .6s ease;
+    &.active {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
   /* DECK */
   .deck {
     position: absolute;
@@ -229,6 +252,12 @@
       enable-rotate
       style="width: 100%; height: 100vh;"
     >
+      <!-- MUSIC  -->
+      <cover-view class="mp-preview {{music.status === 0 ? 'active' : ''}}">
+        <cover-view class="control">P</cover-view>
+        <cover-view class="title">「南芳」 播放中</cover-view>
+        <cover-view class="close">X</cover-view>
+      </cover-view>
       <!-- SIDEBAR -->
       <cover-view class="sidebar">
         <cover-view class="btn">comment</cover-view>
@@ -323,7 +352,8 @@
       showDeck: false,
       currentCatIndex: 0,
       scale: 0,
-      Ymode: true
+      Ymode: true,
+      music: {}
     }
 
     methods = {
@@ -438,6 +468,11 @@
       })
 
       this.mapCtx = wx.createMapContext('map')
+    }
+
+    onShow() {
+      this.music = wepy.$store.getState().musicPlayer.music
+      console.log(this.music, 1)
     }
 
     includePoints(padding) {

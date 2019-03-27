@@ -1,0 +1,1 @@
+export const INIT_MUSIC_PLAYER = 'INIT_MUSIC_PLAYER'

@@ -1,0 +1,166 @@
+<style lang="less">
+  @import "../styles/base";
+
+  @keyframes play{
+    0%{transform: rotate(0deg);}
+    100%{transform: rotate(360deg);}
+  }
+
+  .mp-wrapper {
+    display: flex;
+    justify-content: space-around;
+    .timeline {
+      display: flex;
+      align-items:center;
+      width: 80%;
+      .time {
+        font-size: 9px;
+        color: #000;
+      }
+      slider {
+        flex: 1;
+      }
+    }
+
+    @coverSize: 120rpx;
+    .cover-wrapper {
+      position: relative;
+      .cover {
+        width:@coverSize;
+        height:@coverSize;
+        border-radius:50%;
+        animation: play 10s linear infinite;
+        &.play{
+          animation-play-state: running;
+        }
+        &.pause {
+          animation-play-state: paused;
+        }
+      }
+      .control {
+        position:absolute;
+        top:@coverSize / 2;
+        left:@coverSize / 2;
+        transform: translate(-50%, -50%);
+        color: @themeColorY;
+      }
+    }
+  }
+</style>
+<template lang="wxml">
+  <view class="mp-wrapper">
+    <view class="timeline">
+      <view class="start time">{{currentTime}}</view>
+      <slider
+        value="{{slideValue}}"
+        min="0"
+        max="{{slideMax}}"
+        @change="onChangeSlide"
+        step="1"
+      ></slider>
+      <view class="end time">{{duration}}</view>
+    </view>
+    <view class="cover-wrapper" @tap="play">
+      <image
+        class="cover {{playing ? 'play' : 'pause'}}"
+        src="{{coverImg}}">
+      </image>
+      <view class="control">{{playing ? 'Pause' : 'Play'}}</view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+// import {initMusicPlayer} from '../store/actions'
+import {formatTime2Duration} from '../utils/formatTime'
+
+export default class MusicPlayer extends wepy.component {
+
+  data = {
+    id: null,
+    music: {},
+    currentTime: 0,
+    slideMax: 'max',
+    slideValue: 0,
+    duration: 0,
+    coverImg: '',
+    ctx: null,
+    playing: false,
+    isSameAudio: false
+  }
+
+  methods = {
+    init(data) {
+      console.log('init music')
+      this.ctx = data.ctx
+      this.music = data.music
+      this.coverImg = data.music.coverImg
+      this.id = data.id
+      const ctx = this.ctx
+      this.isSameAudio = ctx.id === this.id
+      if (this.isSameAudio) { this.playing = !ctx.paused }
+
+      console.log('same', this.isSameAudio)
+
+    //  static
+      this.duration = formatTime2Duration(this.music.duration)
+      this.slideMax = this.music.duration
+    },
+
+    updateTime(currentTime) {
+      if (this.isSameAudio) {
+        this.slideValue = currentTime
+        this.currentTime = formatTime2Duration(currentTime)
+      }
+    },
+
+    play() {
+      const ctx = this.ctx
+      const music = this.music
+      if (this.playing) {
+      //  播放中
+        console.log('playing', this.playing)
+        ctx.pause()
+        this.playing = false
+      } else {
+        console.log('playing', this.playing)
+        ctx.title = music.title
+        ctx.src = music.src
+        // ctx.startTime = 50
+        ctx.startTime = this.isSameAudio ? ctx.currentTime : 0
+        ctx.id = this.id
+        ctx.play()
+        this.playing = true
+      }
+    },
+
+    onChangeSlide(e) {
+      const value = e.detail.value
+      this.audioCtx.seek(value)
+    }
+  }
+
+  onLoad() {
+    // const audioCtx = this.audioCtx
+    // this.playing = audioCtx.id && !audioCtx.paused
+    //
+    // audioCtx.onPlay(() => {
+    //   self.playing = true
+    //   self.$apply()
+    // })
+    // audioCtx.onPause(() => {
+    //   self.playing = false
+    //   self.$apply()
+    // })
+    // audioCtx.onStop(() => {
+    //   self.playing = false
+    //   self.$apply()
+    // })
+    // audioCtx.onEnded(() => {
+    //   self.playing = false
+    //   self.$apply()
+    // })
+  }
+}
+</script>

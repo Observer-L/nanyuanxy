@@ -41,7 +41,8 @@
       }
     }
     .music-player {
-      background: @grayBg;
+      padding: 0 @padding;
+      // background: @grayBg;
     }
     .more {
       padding: @padding;
@@ -59,6 +60,51 @@
       }
       .content {
         font-size: 16px;
+      }
+    }
+  }
+
+  @keyframes play{
+    0%{transform: rotate(0deg);}
+    100%{transform: rotate(360deg);}
+  }
+
+  .mp-wrapper {
+    display: flex;
+    justify-content: space-around;
+    .timeline {
+      display: flex;
+      align-items:center;
+      width: 80%;
+      .time {
+        font-size: 9px;
+        color: #000;
+      }
+      slider {
+        flex: 1;
+      }
+    }
+
+    @coverSize: 120rpx;
+    .cover-wrapper {
+      position: relative;
+      .cover {
+        width:@coverSize;
+        height:@coverSize;
+        border-radius:50%;
+        animation: play 10s linear infinite;
+        &.play{
+          animation-play-state: running;
+        }
+        &.pause {
+          animation-play-state: paused;
+        }
+      }
+      .control {
+        position:absolute;
+        top:@coverSize / 2;
+        left:@coverSize / 2;
+        transform: translate(-50%, -50%);
       }
     }
   }
@@ -103,7 +149,7 @@
         wx:if="{{marker.music}}"
         class="music-player"
       >
-        TODO音乐播放器
+        <MusicPlayer></MusicPlayer>
       </view>
       <view class="more">
         <view class="info address" wx:if="{{marker.contact.address}}">icon {{marker.contact.address}}</view>
@@ -122,6 +168,8 @@
   import wepy from 'wepy'
   import { connect } from 'wepy-redux'
   import { getTargetMarker } from '../store/actions'
+  import {formatTime2Duration} from '../utils/formatTime'
+  import MusicPlayer from '../components/music-player'
   import config from '../config'
 
   @connect({
@@ -135,7 +183,9 @@
       navigationBarTitleText: 'test'
     }
 
-    computed = {}
+    components = {
+      MusicPlayer
+    }
 
     data = {
       marker: {}
@@ -153,9 +203,7 @@
     }
 
     onLoad(options) {
-      console.log(options)
       if (options.id) {
-        console.log(options.id, 1)
         options.id = Number(options.id)
         options.type = options.mode === 'you' ? decodeURI(options.type) : ''
         wepy.$store.dispatch(getTargetMarker(options))
@@ -163,6 +211,19 @@
       } else {
         this.marker = config.school
       }
+
+      if (this.marker.music) {
+        const ctx = this.$parent.globalData.audioCtx
+        this.$invoke('MusicPlayer', 'init', {
+          id: this.marker.id,
+          music: this.marker.music,
+          ctx
+        })
+        ctx.onTimeUpdate(() => {
+          this.$invoke('MusicPlayer', 'updateTime', ctx.currentTime)
+        })
+      }
+
     }
   }
 </script>

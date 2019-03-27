@@ -10,7 +10,12 @@ export const Ymarkers = [
         name: '孙中山铜像',
         short_name: '铜像',
         logo: 'nfsysu',
-        music: 'music.mp3',
+        music: {
+          src: 'cloud://xy-dev.7879-xy-dev/music/EarnedIt.mp3',
+          coverImg: 'cloud://xy-dev.7879-xy-dev/music/Earned It.jpg',
+          duration: '251',
+          title: 'Earned It'
+        },
         location: [23.634524, 113.676851],
         desc: '文字介绍',
         images: [
