@@ -142,7 +142,7 @@
         ></image>
         <view class="title">
           <view class="name">{{marker.name}}</view>
-          <view class="action">导航</view>
+          <view class="action" @tap="navigate">导航</view>
         </view>
       </view>
       <view
@@ -198,6 +198,14 @@
         wx.previewImage({
           current: this.marker.images[targetId], // 当前显示图片的http链接
           urls: this.marker.images // 需要预览的图片http链接列表
+        })
+      },
+      navigate() {
+        wx.openLocation({
+          latitude: this.marker.location[0],
+          longitude: this.marker.location[1],
+          name: this.marker.name,
+          scale: 15
         })
       }
     }
