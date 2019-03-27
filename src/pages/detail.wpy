@@ -168,7 +168,6 @@
   import wepy from 'wepy'
   import { connect } from 'wepy-redux'
   import { getTargetMarker } from '../store/actions'
-  import {formatTime2Duration} from '../utils/formatTime'
   import MusicPlayer from '../components/music-player'
   import config from '../config'
 

@@ -29,9 +29,15 @@
 <template>
   <view>
     <!-- SEARCH -->
-    <van-search value="{{ value }}" placeholder="请输入搜索关键词"></van-search>
+    <van-search
+      shape="round"
+      value="{{ value }}"
+      placeholder="请输入搜索关键词"
+      @change="input"
+      @clear="clearInput"
+    ></van-search>
     <!-- TABS -->
-    <van-tabs active="{{activeMode}}" @change="onChangeMode" nav-class="active {{mode}}">
+    <van-tabs active="{{mode === 'you' ? 0 : 1}}" @change="onChangeMode" nav-class="active {{mode}}" wx:if="{{!results.length && !nothing}}">
       <van-tab title="游">
         <van-tabs active="{{ activeTypeY }}" @change="onChangeTypeY" nav-class="active {{mode}}">
           <van-tab
@@ -79,6 +85,23 @@
       </van-tab>
     </van-tabs>
 
+    <van-cell
+      wx:if="{{results.length}}"
+      wx:for="{{results}}"
+      wx:for-item="marker"
+      wx:key="{{marker.id}}"
+      id="{{marker.id}}"
+      title="{{marker.name}}"
+      border="{{ false }}"
+      clickable="{{true}}"
+      @tap="jumpTo"
+      clickable="{{true}}"
+    >
+      <image slot="icon" src="{{marker.iconPath}}" class="cell-icon"></image>
+    </van-cell>
+    <view wx:if="{{nothing}}" class="nothing">nothing</view>
+
+
   </view>
 </template>
 
@@ -96,22 +119,40 @@
       }
     }
 
-    computed = {
-      activeMode() {
-        return this.mode === 'you' ? 0 : 1
-      }
-    }
-
     data = {
       mode: 'you',
       markers: {},
       activeTypeY: 0,
-      activeTypeX: 0
+      activeTypeX: 0,
+      results: [],
+      nothing: false
     }
 
     methods = {
+      input(e) {
+        this.results = []
+        const kw = e.detail
+        // const markers = this.mode === 'you' ? this.markers.Ymarkers : this.markers.Xmarkers
+        const markers = [...this.markers.Ymarkers, ...this.markers.Xmarkers]
+        if (kw !== '') {
+          for (const i of markers) {
+            for (const j of i.data) {
+              if (j.name.includes(kw)) {
+                this.results.push(j)
+              }
+            }
+          }
+          this.nothing = !this.results.length
+        } else {
+          this.results = []
+          this.nothing = false
+        }
+      },
+      clearInput() {
+        this.results = []
+        this.nothing = false
+      },
       onChangeMode(e) {
-        console.log(e)
         this.mode = e.detail.title === '游' ? 'you' : 'xun'
       },
       onChangeTypeY(e) {

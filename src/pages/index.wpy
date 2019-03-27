@@ -471,8 +471,7 @@
     }
 
     onShow() {
-      this.music = wepy.$store.getState().musicPlayer.music
-      console.log(this.music, 1)
+      // this.music = wepy.$store.getState().musicPlayer.music
     }
 
     includePoints(padding) {
