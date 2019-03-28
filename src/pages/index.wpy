@@ -356,6 +356,13 @@
       music: {}
     }
 
+    watch = {
+      showDeck (newValue, oldValue) {
+        this.showCats = !newValue
+        this.$apply()
+      }
+    }
+
     methods = {
       handleMarkerTap(e) {
         if (e.markerId !== undefined) {
