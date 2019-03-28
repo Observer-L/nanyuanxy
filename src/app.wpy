@@ -22,6 +22,7 @@
         'pages/index',
         'pages/detail',
         'pages/search',
+        'pages/report',
         'pages/web-view'
       ],
       window: {

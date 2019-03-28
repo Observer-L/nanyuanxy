@@ -1,0 +1,96 @@
+<style lang="less">
+  @import "../styles/base";
+
+  #report-map {
+    width: 100vw;
+    height: 90vh;
+
+    .mask {
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, .5);
+    }
+
+    .location {
+      position: absolute;
+      top: 500rpx;
+      left: 50%;
+      transform: translateX(-50%);
+      background: tomato;
+    }
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrapper {
+    height: 10vh;
+    text-align: center;
+    background-color: @grayBg;
+    padding-top: 20rpx;
+  }
+</style>
+<template>
+  <view>
+    <map
+      id="report-map"
+      markers="{{marker}}"
+      latitude="{{mapCenter[0]}}"
+      longitude="{{mapCenter[1]}}"
+      scale="{{scale}}"
+    >
+      <cover-view class="mask" style="{{marker[0].latitude ? 'display:none' : ''}}"></cover-view>
+      <cover-view class="location" @tap="chooseLocation">
+        哪里{{type === 'l' ? '丢失' : '捡到'}}的？
+      </cover-view>
+    </map>
+
+    <!-- PROGRESS BAR -->
+    <view class="progress-wrapper">
+      <i-progress percent="{{percent}}" status="active"></i-progress>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import config from '../config'
+
+  export default class Report extends wepy.page {
+    config = {
+      navigationBarTitleText: 'test',
+      'usingComponents': {
+        'i-progress': '../components/iview/progress/index'
+      }
+    }
+
+    data = {
+      type: '',
+      mapCenter: config.school.location,
+      scale: 17,
+      percent: 0,
+      marker: [{
+        iconPath: '/images/icons/markers/view.png',
+        width: config.markerStyle.width,
+        height: config.markerStyle.height
+      }]
+    }
+
+    methods = {
+      chooseLocation() {
+        const self = this
+        wx.chooseLocation({
+          success(res) {
+            self.marker[0].latitude = res.latitude
+            self.marker[0].longitude = res.longitude
+            self.mapCenter = [res.latitude, res.longitude]
+            self.scale = 18
+            self.$apply()
+          }
+        })
+      }
+    }
+
+    onLoad(options) {
+      this.type = options.type
+    }
+  }
+</script>

@@ -351,7 +351,7 @@
       </cover-view>
       <!-- FAB -->
       <!--<cover-view class="bg {{showDeck ? 'active' : ''}} {{!Ymode ? 'xun' : ''}}"></cover-view>-->
-      <cover-view class="deck {{showDeck ? 'active' : ''}} {{!Ymode ? 'xun' : ''}}" @tap="openRoute" style="{{routeMode ? 'display:none' : ''}}">
+      <cover-view class="deck {{showDeck ? 'active' : ''}} {{!Ymode ? 'xun' : ''}}" @tap="action" style="{{routeMode ? 'display:none' : ''}}">
         <block wx:if="{{Ymode}}">
           <cover-view class="option top" id="m">中</cover-view>
           <cover-view class="option right" id="e">东</cover-view>
@@ -359,8 +359,8 @@
           <cover-view class="option left" id="e">西</cover-view>
         </block>
         <block wx:else>
-          <cover-view class="option top">Lost</cover-view>
-          <cover-view class="option bottom">Found</cover-view>
+          <cover-view class="option top" id="l">Lost</cover-view>
+          <cover-view class="option bottom" id="f">Found</cover-view>
         </block>
       </cover-view>
       <cover-view class="FAB" @tap="toggleDeck" style="{{routeMode ? 'display:none' : ''}}">
@@ -428,10 +428,10 @@
       Xmarkers: {},
       Ymarkers: [],
       showCats: true,
-      showDeck: false,
+      showDeck: true,
       currentCatIndex: 0,
       scale: 0,
-      Ymode: true,
+      Ymode: false,
       music: {},
       routes: [],
       currentRoute: {
@@ -566,17 +566,24 @@
           url: './web-view?scene_id=' + config.school.panorama
         })
       },
-      openRoute(e) {
-        const cr = this.currentRoute
-        const routes = this.routes
-        switch (e.target.id) {
-          case 'm':
-            cr.id = 0
-            cr.polyline[0].points = routes[0].data
-            this.markers = cr.polyline[0].points.filter(p => p.name)
-            break
-          default:
-            console.log('none')
+      action(e) {
+        if (!e.target.id) return
+        if (this.Ymode) {
+          const cr = this.currentRoute
+          const routes = this.routes
+          switch (e.target.id) {
+            case 'm':
+              cr.id = 0
+              cr.polyline[0].points = routes[0].data
+              this.markers = cr.polyline[0].points.filter(p => p.name)
+              break
+            default:
+              console.log('none')
+          }
+        } else {
+          wx.navigateTo({
+            url: './report?type=' + e.target.id
+          })
         }
       },
       closeRoute() {
@@ -597,7 +604,7 @@
         const Ymarkers = res.Ymarkers
         const Xmarkers = res.Xmarkers
         this.originMarkers = Ymarkers
-        this.markers = Ymarkers[0].data
+        this.markers = this.Ymode ? Ymarkers[0].data : [...Xmarkers[0].data, ...Xmarkers[1].data]
         this.Ymarkers = Ymarkers[0].data
         this.Xmarkers = {
           lost: {
