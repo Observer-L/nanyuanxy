@@ -6,5 +6,9 @@ export const markerStyle = {
     bgColor: '#ffffff',
     borderRadius: 3,
     padding: 6
+  },
+  polylineStyle: {
+    color: '#BadA55',
+    width: 4
   }
 }

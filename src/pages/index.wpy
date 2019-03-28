@@ -215,15 +215,18 @@
   .location, .search {
     position: absolute;
     bottom: @FABsize * 1.75;
-    transform: translateX(0);
+    transform: translate(0, 0);
     transition: all .3s ease;
   }
 
   .location {
     left: @FABsize;
+    &.route {
+      transform: translate(-100rpx, 140rpx) !important;
+    }
 
     &.offset {
-      transform: translateX(-@FABsize / 2);
+      transform: translate(-@FABsize / 2, 0);
     }
   }
 
@@ -232,6 +235,60 @@
 
     &.offset {
       transform: translateX(@FABsize / 2);
+    }
+  }
+
+  /* ROUTES */
+  .route-wrapper {
+    position: relative;
+    height: 20vh;
+    padding: 20rpx;
+    box-sizing: border-box;
+    background: @grayBg;
+    overflow: hidden;
+    .close {
+      position: absolute;
+      right: 20rpx;
+      top: 20rpx;
+    }
+    .title {
+    }
+    .desc {
+      font-size: 60%;
+    }
+    .route {
+      margin-top: 20rpx;
+      background: #fff;
+      .points {
+        height: 100rpx;
+        display: flex;
+        .info:not(:last-child) {
+          margin-right: 40rpx;
+        }
+        .info {
+          z-index: 1;
+          width:80rpx;
+          display: flex;
+          flex-direction: column;
+          align-items:center;
+          image {
+            width: 60rpx;
+            height: 60rpx;
+          }
+          .name {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+    .line {
+      position: absolute;
+      z-index: 0;
+      top: 30rpx;
+      height: 2px;
+      background-color: @themeColorY;
+      border-left: 20rpx solid #0091ff;
+      border-right: 20rpx solid #CB4042;
     }
   }
 </style>
@@ -245,12 +302,13 @@
       scale="{{scale ? scale : originMarkers[currentCatIndex].scale}}"
       markers="{{markers}}"
       @markertap="handleMarkerTap"
+      polyline="{{ currentRoute.polyline }}"
       show-location
       enable-3D
       show-compass
       enable-overlooking
       enable-rotate
-      style="width: 100%; height: 100vh;"
+      style="width: 100%; height: {{routeMode ? '80vh' : '100vh' }};"
     >
       <!-- MUSIC  -->
       <cover-view class="mp-preview {{music.status === 0 ? 'active' : ''}}">
@@ -263,7 +321,10 @@
         <cover-view class="btn">comment</cover-view>
         <cover-view class="btn" @tap="handleMarkerTap">intro</cover-view>
         <cover-view class="btn" @tap="show360">360</cover-view>
-        <cover-view class="btn btn-cats" @tap="toggleCats">cat</cover-view>
+        <cover-view
+          class="btn btn-cats"
+          @tap="{{routeMode ? 'closeRoute' : 'toggleCats'}}"
+        >cat</cover-view>
       </cover-view>
       <cover-view
         class="cats {{showCats ? 'active' : ''}}"
@@ -289,28 +350,28 @@
         </cover-view>
       </cover-view>
       <!-- FAB -->
-      <cover-view class="bg {{showDeck ? 'active' : ''}} {{!Ymode ? 'xun' : ''}}"></cover-view>
-      <cover-view class="deck {{showDeck ? 'active' : ''}} {{!Ymode ? 'xun' : ''}}">
+      <!--<cover-view class="bg {{showDeck ? 'active' : ''}} {{!Ymode ? 'xun' : ''}}"></cover-view>-->
+      <cover-view class="deck {{showDeck ? 'active' : ''}} {{!Ymode ? 'xun' : ''}}" @tap="openRoute" style="{{routeMode ? 'display:none' : ''}}">
         <block wx:if="{{Ymode}}">
-          <cover-view class="option top">中</cover-view>
-          <cover-view class="option right">东</cover-view>
-          <cover-view class="option bottom">南</cover-view>
-          <cover-view class="option left">西</cover-view>
+          <cover-view class="option top" id="m">中</cover-view>
+          <cover-view class="option right" id="e">东</cover-view>
+          <cover-view class="option bottom" id="s">南</cover-view>
+          <cover-view class="option left" id="e">西</cover-view>
         </block>
         <block wx:else>
           <cover-view class="option top">Lost</cover-view>
           <cover-view class="option bottom">Found</cover-view>
         </block>
       </cover-view>
-      <cover-view class="FAB" @tap="toggleDeck">
+      <cover-view class="FAB" @tap="toggleDeck" style="{{routeMode ? 'display:none' : ''}}">
         <cover-view class="btn you" id="you" wx:if="{{Ymode}}">游</cover-view>
         <cover-view class="btn xun" id="xun" wx:else>寻</cover-view>
       </cover-view>
       <!-- SWITCH -->
-      <cover-view class="switch" @tap="switchMode">{{Ymode ? 'Y' : 'X'}}</cover-view>
+      <cover-view class="switch" @tap="switchMode" style="{{routeMode ? 'display:none' : ''}}">{{Ymode ? 'Y' : 'X'}}</cover-view>
       <!-- LOCATION & SEARCH -->
       <cover-view
-        class="location {{Ymode && showDeck ? 'offset' : ''}}"
+        class="location {{Ymode && showDeck ? 'offset' : ''}} {{routeMode ? 'route' : ''}}"
         @tap="locate"
       >
         定位
@@ -318,8 +379,34 @@
       <cover-view
         class="search {{Ymode && showDeck ? 'offset' : ''}}"
         @tap="search"
+        style="{{routeMode ? 'display:none' : ''}}"
       >搜索</cover-view>
     </map>
+    <!-- ROUTES -->
+    <view class="route-wrapper">
+      <view class="title">{{routes[currentRoute.id].name}}</view>
+      <view class="desc">共有{{routes[currentRoute.id].count}}个景点</view>
+      <scroll-view class="route" scroll-x>
+        <view class="points" style="width: {{ routeWidth }} rpx">
+          <block
+            wx:for="{{currentRoute.polyline[0].points}}"
+            wx:key="{{index}}"
+            wx:if="{{item.name}}"
+           >
+            <view
+              class="info"
+              @tap="focusPoint"
+              data-id="{{index}}"
+            >
+              <image src="{{item.iconPath}}" wx:if="{{item.iconPath}}" ></image>
+              <text class="name">{{item.short_name || item.name}}</text>
+            </view>
+          </block>
+        </view>
+        <view class="line" style="width:{{routeLength * 80}}rpx"></view>
+      </scroll-view>
+      <view class="close" @tap="closeRoute">X</view>
+    </view>
   </view>
 </template>
 
@@ -330,14 +417,6 @@
   export default class Index extends wepy.page {
     config = {
       navigationBarTitleText: 'test'
-    }
-
-    computed = {
-      XmarkersTypes() {
-        if (!this.Xmarkers) return
-        // return Object.keys(this.Xmarkers).map(t => t.toUpperCase())
-        return Object.keys(this.Xmarkers)
-      }
     }
 
     data = {
@@ -353,7 +432,37 @@
       currentCatIndex: 0,
       scale: 0,
       Ymode: true,
-      music: {}
+      music: {},
+      routes: [],
+      currentRoute: {
+        id: 0,
+        polyline: [
+          {
+            points: [],
+            ...config.markerStyle.polylineStyle
+          }
+        ]
+      }
+    }
+
+    computed = {
+      XmarkersTypes () {
+        return Object.keys(this.Xmarkers)
+      },
+      routeLength() {
+        if (!this.routes.length) return
+        return this.routes[this.currentRoute.id].count // 性能优化
+      },
+      routeWidth () {
+        if (!this.routes.length) return
+        // const routeLength = this.currentRoute.polyline[0].points.filter(p => p.name).length * 160
+        const routeLength = this.routes[this.currentRoute.id].count * 160
+        const wd = wx.getSystemInfoSync().windowWidth
+        return routeLength <= wd ? wd : routeLength
+      },
+      routeMode() {
+        return !!this.currentRoute.polyline[0].points.length
+      }
     }
 
     watch = {
@@ -425,7 +534,7 @@
         setTimeout(() => {
           self.scale = 0
           self.$apply()
-        }, 300)
+        }, 200)
         // includePoints
         this.includePoints(125)
       },
@@ -441,7 +550,7 @@
         } else {
           this.markers = this.Ymarkers
         }
-        this.showDeck = true
+        // this.showDeck = true
       },
       locate() {
         // 使用MapContext而非wx.getLocation
@@ -456,6 +565,30 @@
         wx.navigateTo({
           url: './web-view?scene_id=' + config.school.panorama
         })
+      },
+      openRoute(e) {
+        const cr = this.currentRoute
+        const routes = this.routes
+        switch (e.target.id) {
+          case 'm':
+            cr.id = 0
+            cr.polyline[0].points = routes[0].data
+            this.markers = cr.polyline[0].points.filter(p => p.name)
+            break
+          default:
+            console.log('none')
+        }
+      },
+      closeRoute() {
+        this.showDeck = false
+        this.currentRoute.polyline[0].points = []
+        this.markers = this.originMarkers[this.currentCatIndex].data
+      },
+      focusPoint(e) {
+        const id = e.currentTarget.dataset.id
+        const targetMarker = this.currentRoute.polyline[0].points[id]
+        this.mapCenter = targetMarker.location
+        this.scale = 18
       }
     }
 
@@ -477,6 +610,7 @@
           }
         }
         this.$apply()
+        this.loadRoutes()
       })
 
       this.mapCtx = wx.createMapContext('map')
@@ -491,6 +625,25 @@
         padding: [padding, padding, padding, padding],
         points: this.markers
       })
+    }
+
+    loadRoutes() {
+      const routes = require('../mock/routes').routes
+      for (const r of routes) {
+        for (let point of r.data) {
+          if (point.name) {
+            for (const i of this.originMarkers) {
+              for (const j of i.data) {
+                if (j.name === point.name) {
+                  point = Object.assign(point, j)
+                  console.log(point)
+                }
+              }
+            }
+          }
+        }
+      }
+      this.routes = routes
     }
   }
 </script>
