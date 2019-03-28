@@ -1,0 +1,21 @@
+<template>
+  <web-view src="https://720yun.com/t/67e22mf5jts?scene_id={{scene_id}}"></web-view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class WebView extends wepy.page {
+    config = {
+      navigationBarTitleText: 'test'
+    }
+
+    data = {
+      scene_id: 2291778
+    }
+
+    onLoad(options) {
+      this.scene_id = options.scene_id
+    }
+  }
+</script>

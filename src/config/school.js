@@ -20,5 +20,5 @@ export default {
     phone: '123456789',
     address: '校园地址'
   },
-  panorama: '校园全景网页外链'
+  panorama: 2291778 // 720云全景场景ID
 }

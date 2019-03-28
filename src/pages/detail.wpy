@@ -154,7 +154,7 @@
       <view class="more">
         <view class="info address" wx:if="{{marker.contact.address}}">icon {{marker.contact.address}}</view>
         <view class="info phone" wx:if="{{marker.contact.phone}}">icon {{marker.contact.phone}}</view>
-        <view class="info panorama" wx:if="{{marker.panorama}}">icon {{marker.panorama}}</view>
+        <view class="info panorama" wx:if="{{marker.panorama}}" @tap="show360">icon 全景观看</view>
       </view>
       <view class="desc">
         <view class="title">简介</view>
@@ -205,6 +205,11 @@
           longitude: this.marker.location[1],
           name: this.marker.name,
           scale: 15
+        })
+      },
+      show360() {
+        wx.navigateTo({
+          url: './web-view?scene_id=' + this.marker.panorama
         })
       }
     }

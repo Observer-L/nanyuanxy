@@ -262,7 +262,7 @@
       <cover-view class="sidebar">
         <cover-view class="btn">comment</cover-view>
         <cover-view class="btn" @tap="handleMarkerTap">intro</cover-view>
-        <cover-view class="btn">360</cover-view>
+        <cover-view class="btn" @tap="show360">360</cover-view>
         <cover-view class="btn btn-cats" @tap="toggleCats">cat</cover-view>
       </cover-view>
       <cover-view
@@ -443,6 +443,11 @@
       search() {
         wx.navigateTo({
           url: `./search?mode=${this.Ymode ? 'you' : 'xun'}`
+        })
+      },
+      show360() {
+        wx.navigateTo({
+          url: './web-view?scene_id=' + config.school.panorama
         })
       }
     }

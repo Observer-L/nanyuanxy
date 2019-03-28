@@ -26,7 +26,7 @@ export const Ymarkers = [
           phone: '123456789',
           address: '中山大学南方学院XXX'
         },
-        panorama: '全景网页外链'
+        panorama: 'https://720yun.com/t/67e22mf5jts?scene_id=2291778'
       },
       {
         id: 'random_id_generated_by_cloud_database_1',
@@ -36,7 +36,7 @@ export const Ymarkers = [
         images: [
           'https://via.placeholder.com/400'
         ],
-        panorama: '全景网页外链'
+        panorama: ''
       }
     ]
   },
@@ -59,7 +59,7 @@ export const Ymarkers = [
           phone: '123456789',
           address: '中山大学南方学院XXX'
         },
-        panorama: '全景网页外链'
+        panorama: 3061760
       },
       {
         name: '中区食堂',
@@ -69,7 +69,11 @@ export const Ymarkers = [
         images: [
           'https://via.placeholder.com/400'
         ],
-        panorama: '全景网页外链'
+        contact: {
+          phone: '123456789',
+          address: '中山大学南方学院XXX'
+        },
+        panorama: ''
       }
     ]
   },
@@ -92,7 +96,7 @@ export const Ymarkers = [
           phone: '123456789',
           address: '中山大学南方学院XXX'
         },
-        panorama: '全景网页外链'
+        panorama: ''
       },
       {
         name: '行政楼2号',
@@ -102,7 +106,7 @@ export const Ymarkers = [
         images: [
           'https://via.placeholder.com/400'
         ],
-        panorama: '全景网页外链'
+        panorama: ''
       }
     ]
   }

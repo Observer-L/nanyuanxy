@@ -12,7 +12,6 @@ export const loadMarkersX = createAction(LOAD_MARKERS_X, () => {
   })
 })
 
-
 export const loadMarkersY = createAction(LOAD_MARKERS_Y, () => {
   return new Promise(resolve => {
     wx.cloud.callFunction({
