@@ -127,14 +127,25 @@
             value="{{area[0] + area[1] || '请选择丢失区域'}}"
             icon="location-o"
             is-link
-            arrow-direction="{{currentShowPicker === 1 ? 'down' : 'up'}}"
+            arrow-direction="{{currentShowPicker === 'area' ? 'up' : 'down'}}"
             id="area"
             @tap="togglePicker"
           ></van-cell>
         </view>
       </view>
       <view class="step">
-          s2
+
+        <view class="form-wrapper">
+          <van-cell
+            title="物品类型"
+            value="{{itemType[0] + itemType[1] || '请选择物品类型'}}"
+            icon="location-o"
+            is-link
+            arrow-direction="{{currentShowPicker === 'itemType' ? 'up' : 'down'}}"
+            id="itemType"
+            @tap="togglePicker"
+          ></van-cell>
+        </view>
       </view>
     </view>
 
@@ -156,7 +167,16 @@
       @close="togglePicker"
       position="bottom"
     >
-      <van-picker columns="{{ areas }}" @change="changeArea" ></van-picker>
+      <van-picker columns="{{ areas }}" @change="changeAreaOrItemType" ></van-picker>
+    </van-popup>
+
+
+    <van-popup
+      show="{{ currentShowPicker === 'itemType' }}"
+      @close="togglePicker"
+      position="bottom"
+    >
+      <van-picker columns="{{ itemTypes }}" @change="changeAreaOrItemType" ></van-picker>
     </van-popup>
 
     <!-- GLOBAL STUFF -->
@@ -172,7 +192,7 @@
   export default class Report extends wepy.page {
     config = {
       navigationBarTitleText: 'test',
-      'usingComponents': {
+      usingComponents: {
         'i-progress': '../components/iview/progress/index',
         'van-popup': '../components/vant/popup/index',
         'van-field': '../components/vant/field/index',
@@ -201,12 +221,19 @@
       area: [],
       areas: [
         {
-          values: Object.keys(config.areas),
-          className: 'test1'
+          values: Object.keys(config.areas)
         },
         {
-          values: Object.values(config.areas)[0],
-          className: 'test2'
+          values: Object.values(config.areas)[0]
+        }
+      ],
+      itemType: [],
+      itemTypes: [
+        {
+          values: Object.keys(config.itemTypes)
+        },
+        {
+          values: Object.values(config.itemTypes)[0]
         }
       ]
     }
@@ -242,16 +269,18 @@
         this.currentShowPicker = this.showPicker ? e.target.id : null
         this.setDefaultPickerValue()
       },
-      changeArea(e) {
+      changeAreaOrItemType(e) {
+        const son = this.currentShowPicker
+        const parent = this.currentShowPicker + 's'
         switch (e.detail.index) {
           case 0:
             const index = e.detail.picker.getIndexes()[0]
-            this.areas[1].values = Object.values(config.areas)[index]
-            this.area[0] = e.detail.value[0]
-            this.area[1] = this.areas[1].values[0]
+            this[parent][1].values = Object.values(config[parent])[index]
+            this[son][0] = e.detail.value[0]
+            this[son][1] = this[parent][1].values[0]
             break
           case 1:
-            this.area[1] = e.detail.value[1]
+            this[son][1] = e.detail.value[1]
             break
         }
       },
@@ -285,12 +314,11 @@
     }
 
     setDefaultPickerValue() {
-      switch (this.currentShowPicker) {
-        case 'area':
-          if (!this.area.length) {
-            this.area = [this.areas[0].values[0], this.areas[1].values[0]]
-          }
-          break
+      if (!this.currentShowPicker) return
+      const son = this.currentShowPicker
+      const parent = this.currentShowPicker + 's'
+      if (!this[son].length) {
+        this[son] = [this[parent][0].values[0], this[parent][1].values[0]]
       }
     }
   }
