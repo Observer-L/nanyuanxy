@@ -10,5 +10,15 @@ export const markerStyle = {
   polylineStyle: {
     color: '#BadA55',
     width: 4
+  },
+  circleStyle: {
+    strokeWidth: 1,
+    colors: {
+      lost: '#DE5867',
+      found: '#3F7CA5'
+    }
   }
 }
+
+// @lostColor: #DE5867;
+// @foundColor: #3F7CA5;

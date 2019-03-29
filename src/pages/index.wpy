@@ -359,8 +359,8 @@
           <cover-view class="option left" id="e">西</cover-view>
         </block>
         <block wx:else>
-          <cover-view class="option top" id="l">Lost</cover-view>
-          <cover-view class="option bottom" id="f">Found</cover-view>
+          <cover-view class="option top" id="lost">Lost</cover-view>
+          <cover-view class="option bottom" id="found">Found</cover-view>
         </block>
       </cover-view>
       <cover-view class="FAB" @tap="toggleDeck" style="{{routeMode ? 'display:none' : ''}}">

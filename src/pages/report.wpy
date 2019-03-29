@@ -4,19 +4,34 @@
   #report-map {
     width: 100vw;
     height: 90vh;
+    transition: all .3s ease;
+
+    &.small {
+      height: 40vh;
+      .location {
+        /*left:100%;*/
+        /*transform:translateX(-100%);*/
+        transform:translateX(55vw);
+      }
+    }
 
     .mask {
+      display: none;
       width: 100%;
       height: 100%;
       background: rgba(0, 0, 0, .5);
+      &.show {
+        display: block;
+      }
     }
 
     .location {
       position: absolute;
-      top: 500rpx;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 35vh;
+      left: 30%;
+      transform: translateX(0);
       background: tomato;
+      transition: all .3s ease;
     }
   }
 
@@ -27,38 +42,144 @@
     background-color: @grayBg;
     padding-top: 20rpx;
   }
+
+
+  .step-wrapper {
+    display: flex;
+    transition: all .3s ease;
+    .step {
+      min-width: 100vw;
+      height: 90vh;
+      overflow-y: hidden;
+      &:nth-child(even) {
+        background: @grayBg;
+      }
+      &:nth-child(2) {
+
+      }
+    }
+  }
+  /* CONTROL */
+  .control {
+    display: flex;
+    justify-content: space-between;
+    background: @grayBg;
+    position:absolute;
+    width:100%;
+    bottom:12vh;
+    padding: 20rpx;
+    box-sizing: border-box;
+    .desc {
+      flex: 1;
+      text-align: center;
+      background: #fff;
+    }
+    .next, .prev {
+      width: 80rpx;
+      height: 80rpx;
+      background: #fff;
+      font-size: 24px;
+      text-align: center;
+    }
+  }
+
+  .form-wrapper {
+    margin: 20rpx;
+    border: 1px @grayBg dotted;
+    .slider {
+      align-items: center;
+      van-slider {
+        flex: 1;
+      }
+    }
+  }
 </style>
 <template>
   <view>
-    <map
-      id="report-map"
-      markers="{{marker}}"
-      latitude="{{mapCenter[0]}}"
-      longitude="{{mapCenter[1]}}"
-      scale="{{scale}}"
-    >
-      <cover-view class="mask" style="{{marker[0].latitude ? 'display:none' : ''}}"></cover-view>
-      <cover-view class="location" @tap="chooseLocation">
-        哪里{{type === 'l' ? '丢失' : '捡到'}}的？
-      </cover-view>
-    </map>
+    <view class="step-wrapper" style="margin-left: -{{(currentStep-1)*100}}vw">
+      <view class="step">
+        <map
+          class="{{marker.latitude ? 'small' : ''}}"
+          id="report-map"
+          markers="{{markers}}"
+          circles="{{markers}}"
+          latitude="{{mapCenter[0]}}"
+          longitude="{{mapCenter[1]}}"
+          scale="{{scale}}"
+        >
+          <cover-view class="mask {{showMask ? 'show' : ''}}" @tap="togglePicker"></cover-view>
+          <cover-view class="location" @tap="chooseLocation">
+            <block wx:if="{{!marker.latitude}}">哪里{{type === 'lost' ? '丢失' : '捡到'}}的？</block>
+            <block wx:else>重选</block>
+          </cover-view>
+        </map>
+
+        <view class="form-wrapper">
+          <van-cell title="丢失范围" custom-class="slider" icon="aim">
+            <van-slider
+              slot="right-icon"
+              value="{{marker.radius}}"
+              @drag="changeRange"
+            ></van-slider>
+          </van-cell>
+          <van-cell
+            title="丢失区域"
+            value="{{area[0] + area[1] || '请选择丢失区域'}}"
+            icon="location-o"
+            is-link
+            arrow-direction="{{currentShowPicker === 1 ? 'down' : 'up'}}"
+            id="area"
+            @tap="togglePicker"
+          ></van-cell>
+        </view>
+      </view>
+      <view class="step">
+          s2
+      </view>
+    </view>
+
+    <!-- CONTROL -->
+    <view class="control" wx:if="{{marker.latitude}}">
+      <view class="prev" @tap="prev" wx:if="{{currentStep !== 1}}">👈</view>
+      <view class="desc">说明性文字</view>
+      <view class="next" @tap="next" wx:if="{{currentStep < 4}}">👉</view>
+    </view>
 
     <!-- PROGRESS BAR -->
     <view class="progress-wrapper">
       <i-progress percent="{{percent}}" status="active"></i-progress>
     </view>
+
+    <!-- POPUP PICKER -->
+    <van-popup
+      show="{{ currentShowPicker === 'area' }}"
+      @close="togglePicker"
+      position="bottom"
+    >
+      <van-picker columns="{{ areas }}" @change="changeArea" ></van-picker>
+    </van-popup>
+
+    <!-- GLOBAL STUFF -->
+    <van-toast id="van-toast" ></van-toast>
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
   import config from '../config'
+  import Toast from '../components/vant/toast/toast'
 
   export default class Report extends wepy.page {
     config = {
       navigationBarTitleText: 'test',
       'usingComponents': {
-        'i-progress': '../components/iview/progress/index'
+        'i-progress': '../components/iview/progress/index',
+        'van-popup': '../components/vant/popup/index',
+        'van-field': '../components/vant/field/index',
+        'van-cell': '../components/vant/cell/index',
+        'van-slider': '../components/vant/slider/index',
+        'van-picker': '../components/vant/picker/index',
+        'van-toast': '../components/vant/toast/index'
       }
     }
 
@@ -67,11 +188,36 @@
       mapCenter: config.school.location,
       scale: 17,
       percent: 0,
-      marker: [{
+      currentStep: 1,
+      markers: [{
         iconPath: '/images/icons/markers/view.png',
         width: config.markerStyle.width,
-        height: config.markerStyle.height
-      }]
+        height: config.markerStyle.height,
+        radius: 30,
+        ...config.markerStyle.circleStyle
+      }],
+      currentShowPicker: null,
+      showPicker: false,
+      area: [],
+      areas: [
+        {
+          values: Object.keys(config.areas),
+          className: 'test1'
+        },
+        {
+          values: Object.values(config.areas)[0],
+          className: 'test2'
+        }
+      ]
+    }
+
+    computed = {
+      marker() {
+        return this.markers[0]
+      },
+      showMask () {
+        return this.currentShowPicker === 'area' || !this.markers[0].latitude
+      }
     }
 
     methods = {
@@ -79,18 +225,73 @@
         const self = this
         wx.chooseLocation({
           success(res) {
-            self.marker[0].latitude = res.latitude
-            self.marker[0].longitude = res.longitude
+            self.markers[0].latitude = res.latitude
+            self.markers[0].longitude = res.longitude
             self.mapCenter = [res.latitude, res.longitude]
             self.scale = 18
+            self.percent = 25
             self.$apply()
           }
         })
+      },
+      changeRange(e) {
+        this.markers[0].radius = e.detail.value
+      },
+      togglePicker(e) {
+        this.showPicker = !this.showPicker
+        this.currentShowPicker = this.showPicker ? e.target.id : null
+        this.setDefaultPickerValue()
+      },
+      changeArea(e) {
+        switch (e.detail.index) {
+          case 0:
+            const index = e.detail.picker.getIndexes()[0]
+            this.areas[1].values = Object.values(config.areas)[index]
+            this.area[0] = e.detail.value[0]
+            this.area[1] = this.areas[1].values[0]
+            break
+          case 1:
+            this.area[1] = e.detail.value[1]
+            break
+        }
+      },
+      next() {
+        if (!this.checkForm()) {
+          // Warning Here
+          Toast.fail('请填写完表单')
+          return
+        }
+        this.percent += 25
+        this.currentStep += 1
+      },
+      prev() {
+        this.percent -= 25
+        this.currentStep -= 1
       }
     }
 
     onLoad(options) {
       this.type = options.type
+      const circleColor = config.markerStyle.circleStyle.colors[this.type]
+      this.markers[0].color = circleColor
+      this.markers[0].fillColor = circleColor + '50' // 透明度
+    }
+
+    checkForm() {
+      switch (this.currentStep) {
+        case 1:
+          return !!this.area.length
+      }
+    }
+
+    setDefaultPickerValue() {
+      switch (this.currentShowPicker) {
+        case 'area':
+          if (!this.area.length) {
+            this.area = [this.areas[0].values[0], this.areas[1].values[0]]
+          }
+          break
+      }
     }
   }
 </script>
