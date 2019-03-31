@@ -428,10 +428,10 @@
       Xmarkers: {},
       Ymarkers: [],
       showCats: true,
-      showDeck: true,
+      showDeck: false,
       currentCatIndex: 0,
       scale: 0,
-      Ymode: false,
+      Ymode: true,
       music: {},
       routes: [],
       currentRoute: {
@@ -599,7 +599,8 @@
       }
     }
 
-    onLoad() {
+    onLoad(options) {
+      if (options.mode) this.Ymode = options.mode === 'you'
       this.$parent.loadMarkers().then(res => {
         const Ymarkers = res.Ymarkers
         const Xmarkers = res.Xmarkers

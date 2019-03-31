@@ -370,6 +370,7 @@
   import config from '../config'
   import {format2FullTime} from '../utils/formatTime'
   import Toast from '../components/vant/toast/toast'
+  import itemTypes from '../config/itemTypes'
 
   export default class Report extends wepy.page {
     config = {
@@ -432,7 +433,7 @@
         phone: '',
         customContact: {
           status: false,
-          content: ''
+          address: ''
         }
       },
       dateTimePicker: {
@@ -527,7 +528,7 @@
             this.formData.phone = e.detail
             break
           case 'custom-contact':
-            this.formData.customContact.content = e.detail
+            this.formData.customContact.address = e.detail
             break
         }
       },
@@ -590,12 +591,52 @@
         }
         this.loading = true
         // TODO: 入库
-        setTimeout(() => {
-          self.loading = false
-          self.$apply()
-          Toast.success('发布成功')
-        }, 1500)
-      //  TODO: 入库成功后跳转到首页寻模式
+        const formData = this.formData
+        const data = {
+          area: this.area,
+          contact: {
+            address: formData.customContact.status ? formData.customContact.address : '',
+            phone: !formData.customContact.status ? formData.phone : ''
+          },
+          created_time: new Date().getTime(),
+          desc: formData.desc,
+          images: formData.images,
+          location: [this.marker.latitude, this.marker.longitude],
+          cat: this.itemType[0],
+          name: this.itemType[1],
+          range: this.marker.radius,
+          status: 0,
+          time: formData.time,
+          type: this.type
+        }
+        if (config.DEBUG) {
+          setTimeout(() => {
+            self.loading = false
+            self.$apply()
+            Toast.success('测试发布成功')
+            setTimeout(() => {
+              Toast.clear()
+              wx.reLaunch({
+                url: './index?mode=xun'
+              })
+            }, 1500)
+          }, 1500)
+        } else {
+          const db = wx.cloud.database()
+          db.collection('xun_' + this.type).add({
+            data
+          }).then(() => {
+            self.loading = false
+            self.$apply()
+            Toast.success('发布成功')
+            setTimeout(() => {
+              Toast.clear()
+              wx.reLaunch({
+                url: './index?mode=xun'
+              })
+            }, 1500)
+          })
+        }
       },
       next() {
         if (!this.checkForm()) {
@@ -643,7 +684,7 @@
           return true
         case 4:
           if (this.formData.customContact.status) {
-            return !!this.formData.customContact.content
+            return !!this.formData.customContact.address
           } else {
             return !!this.formData.phone
           }
