@@ -1,5 +1,6 @@
 <style lang="less">
   @import "../styles/base";
+  @import "../styles/weui";
 
   #report-map {
     width: 100vw;
@@ -51,18 +52,13 @@
       min-width: 100vw;
       height: 90vh;
       overflow-y: hidden;
-      &:nth-child(even) {
-        background: @grayBg;
-      }
-      &:nth-child(2) {
-
-      }
     }
   }
   /* CONTROL */
   .control {
     display: flex;
     justify-content: space-between;
+    align-items:center;
     background: @grayBg;
     position:absolute;
     width:100%;
@@ -72,7 +68,7 @@
     .desc {
       flex: 1;
       text-align: center;
-      background: #fff;
+      background: @grayBg;
     }
     .next, .prev {
       width: 80rpx;
@@ -85,18 +81,36 @@
 
   .form-wrapper {
     margin: 20rpx;
-    border: 1px @grayBg dotted;
     .slider {
       align-items: center;
       van-slider {
         flex: 1;
       }
     }
+    .custom-input {
+      flex: 1;
+      padding-left: 10rpx;
+    }
+  }
+
+  .selected {
+    border: 1px solid tomato;
+  }
+
+  .tips {
+    font-size: 12px;
+    color: #aaa;
+    margin-left:48rpx;
+    .action {
+      color: @foundColor;
+      padding: 0 4rpx;
+    }
   }
 </style>
 <template>
-  <view>
+  <view style="height: 100vh; overflow:hidden;">
     <view class="step-wrapper" style="margin-left: -{{(currentStep-1)*100}}vw">
+      <!-- STEP 1 -->
       <view class="step">
         <map
           class="{{marker.latitude ? 'small' : ''}}"
@@ -106,6 +120,7 @@
           latitude="{{mapCenter[0]}}"
           longitude="{{mapCenter[1]}}"
           scale="{{scale}}"
+          style="{{currentStep !== 1 ? 'display:none' : ''}}"
         >
           <cover-view class="mask {{showMask ? 'show' : ''}}" @tap="togglePicker"></cover-view>
           <cover-view class="location" @tap="chooseLocation">
@@ -133,27 +148,169 @@
           ></van-cell>
         </view>
       </view>
+      <!-- STEP 2 -->
       <view class="step">
 
         <view class="form-wrapper">
           <van-cell
             title="物品类型"
-            value="{{itemType[0] + itemType[1] || '请选择物品类型'}}"
+            value="{{itemType[0] + (itemType[0] === '其他' ? '' : itemType[1]) || '请选择物品类型'}}"
             icon="location-o"
-            is-link
             arrow-direction="{{currentShowPicker === 'itemType' ? 'up' : 'down'}}"
             id="itemType"
             @tap="togglePicker"
-          ></van-cell>
+          >
+            <input
+              wx:if="{{itemType[0] === '其他'}}"
+              class="custom-input"
+              slot="right-icon"
+              placeholder="请输入物品类型"
+              focus="{{itemType[0] === '其他' && !showPicker}}"
+              maxlength="{{6}}"
+              id="custom-it"
+              @input="inputFormData"
+            />
+          </van-cell>
+
+          <van-field
+            wx:if="{{cardType}}"
+            value="{{ formData.cardId }}"
+            label="卡号"
+            type="idcard"
+            required="{{true}}"
+            placeholder="请输入卡号"
+            border="{{ false }}"
+            id="card"
+            @input="inputFormData"
+          ></van-field>
+
+          <van-field
+            value="{{ formData.name }}"
+            label="姓名"
+            placeholder="请输入姓名"
+            border="{{ false }}"
+            id="name"
+            @input="inputFormData"
+          ></van-field>
+
+          <van-field
+            required="{{!cardType}}"
+            value="{{ formData.desc }}"
+            label="描述信息"
+            placeholder="请输入描述信息"
+            maxlength="{{60}}"
+            border="{{ false }}"
+            id="desc"
+            @input="inputFormData"
+          ></van-field>
+
+
+          <view class="weui-cells">
+            <view class="weui-cell">
+              <view class="weui-cell__bd">
+                <view class="weui-uploader">
+                  <view class="weui-uploader__hd">
+                    <view class="weui-uploader__title">图片上传</view>
+                    <view class="weui-uploader__info">{{formData.images.length || 0}}/3</view>
+                  </view>
+                  <view class="weui-uploader__bd">
+
+                    <view class="weui-uploader__files" id="uploaderFiles">
+                      <block wx:for="{{formData.images}}" wx:key="*this">
+                        <view
+                          class="weui-uploader__file {{imageAction.currentImageIndex == index ? 'selected' : ''}}"
+                          @tap="previewImage"
+                          @longpress="toggleActionSheet"
+                          id="{{item}}"
+                        >
+                          <image class="weui-uploader__img" src="{{item}}" mode="aspectFill" />
+                        </view>
+                      </block>
+                    </view>
+
+                    <view class="weui-uploader__input-box" wx:if="{{formData.images.length !== 3}}">
+                      <view class="weui-uploader__input" @tap="chooseImage"></view>
+                    </view>
+
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+
         </view>
       </view>
+
+      <!-- STEP 3 -->
+      <view class="step">
+
+        <view class="form-wrapper">
+          <van-cell
+            title="丢失时间"
+            value="{{formatTime || '请选择丢失时间'}}"
+            icon="location-o"
+            is-link
+            arrow-direction="{{currentShowPicker === 'datetime' ? 'up' : 'down'}}"
+            id="datetime"
+            @tap="togglePicker"
+          ></van-cell>
+        </view>
+
+      </view>
+
+      <!-- STEP 4 -->
+      <view class="step">
+
+        <view class="form-wrapper">
+          <van-field
+            wx:if="{{!formData.customContact.status}}"
+            value="{{ formData.phone }}"
+            label="联系电话"
+            type="number"
+            placeholder="请输入联系电话"
+            border="{{ false }}"
+            id="phone"
+            @input="inputFormData"
+          ></van-field>
+          <van-field
+            wx:else
+            value="{{ formData.customContact.content }}"
+            label="领取地点"
+            placeholder="请输入领取地点"
+            id="custom-contact"
+            @input="inputFormData"
+            border="{{ false }}"
+          ></van-field>
+        </view>
+
+        <view class="tips">
+          <block wx:if="{{!formData.customContact.status}}">
+            不方便留下个人信息？您还可以<text class="action" @tap="switchContact">指定领取地点</text>。
+          </block>
+          <block wx:else="{{formData.customContact.status}}">
+            您还可以<text class="action" @tap="switchContact">留下联系电话</text>。
+          </block>
+        </view>
+
+      </view>
+
     </view>
+
 
     <!-- CONTROL -->
     <view class="control" wx:if="{{marker.latitude}}">
       <view class="prev" @tap="prev" wx:if="{{currentStep !== 1}}">👈</view>
-      <view class="desc">说明性文字</view>
+      <view class="desc" wx:if="{{tips[currentStep - 1]}}">{{tips[currentStep - 1]}}</view>
       <view class="next" @tap="next" wx:if="{{currentStep < 4}}">👉</view>
+      <van-button
+        wx:else
+        square
+        type="primary"
+        loading="{{loading}}"
+        @tap="submit"
+      >
+        发布
+      </van-button>
     </view>
 
     <!-- PROGRESS BAR -->
@@ -170,7 +327,6 @@
       <van-picker columns="{{ areas }}" @change="changeAreaOrItemType" ></van-picker>
     </van-popup>
 
-
     <van-popup
       show="{{ currentShowPicker === 'itemType' }}"
       @close="togglePicker"
@@ -178,6 +334,31 @@
     >
       <van-picker columns="{{ itemTypes }}" @change="changeAreaOrItemType" ></van-picker>
     </van-popup>
+
+    <van-popup
+      show="{{ currentShowPicker === 'datetime' }}"
+      @close="togglePicker"
+      position="bottom"
+    >
+      <van-datetime-picker
+        type="datetime"
+        show-toolbar="{{false}}"
+        value="{{ dateTimePicker.currentDate }}"
+        min-date="{{ dateTimePicker.minDate }}"
+        max-date="{{ dateTimePicker.maxDate }}"
+        @input="selectDatetime"
+      ></van-datetime-picker>
+    </van-popup>
+
+    <!-- ACTION SHEET -->
+    <van-action-sheet
+      show="{{ imageAction.show }}"
+      actions="{{ imageAction.actions }}"
+      cancel-text="取消"
+      @close="toggleActionSheet"
+      @select="selectActionSheet"
+      @cancel="toggleActionSheet"
+    ></van-action-sheet>
 
     <!-- GLOBAL STUFF -->
     <van-toast id="van-toast" ></van-toast>
@@ -187,11 +368,13 @@
 <script>
   import wepy from 'wepy'
   import config from '../config'
+  import {format2FullTime} from '../utils/formatTime'
   import Toast from '../components/vant/toast/toast'
 
   export default class Report extends wepy.page {
     config = {
       navigationBarTitleText: 'test',
+      disableScroll: true,
       usingComponents: {
         'i-progress': '../components/iview/progress/index',
         'van-popup': '../components/vant/popup/index',
@@ -199,7 +382,10 @@
         'van-cell': '../components/vant/cell/index',
         'van-slider': '../components/vant/slider/index',
         'van-picker': '../components/vant/picker/index',
-        'van-toast': '../components/vant/toast/index'
+        'van-toast': '../components/vant/toast/index',
+        'van-datetime-picker': '../components/vant/datetime-picker/index',
+        'van-action-sheet': '../components/vant/action-sheet/index',
+        'van-button': '../components/vant/button/index'
       }
     }
 
@@ -235,7 +421,40 @@
         {
           values: Object.values(config.itemTypes)[0]
         }
-      ]
+      ],
+      tips: ['s1', '', 's3', 's4'],
+      formData: {
+        cardId: '',
+        name: '',
+        desc: '',
+        time: '',
+        images: [],
+        phone: '',
+        customContact: {
+          status: false,
+          content: ''
+        }
+      },
+      dateTimePicker: {
+        minHour: 10,
+        maxHour: 20,
+        minDate: new Date(2019, 0, 1).getTime(),
+        maxDate: new Date().getTime(),
+        currentDate: new Date().getTime()
+      },
+      imageAction: {
+        currentImageIndex: null,
+        show: false,
+        actions: [
+          {
+            name: '删除'
+          },
+          {
+            name: '替换'
+          }
+        ]
+      },
+      loading: false
     }
 
     computed = {
@@ -244,6 +463,12 @@
       },
       showMask () {
         return this.currentShowPicker === 'area' || !this.markers[0].latitude
+      },
+      cardType() {
+        return this.itemType[0] === '证件'
+      },
+      formatTime() {
+        return format2FullTime(this.formData.time)
       }
     }
 
@@ -284,9 +509,96 @@
             break
         }
       },
+      inputFormData(e) {
+        switch (e.target.id) {
+          case 'card':
+            this.formData.cardId = e.detail
+            break
+          case 'name':
+            this.formData.name = e.detail
+            break
+          case 'desc':
+            this.formData.desc = e.detail
+            break
+          case 'custom-it':
+            this.itemType[1] = e.detail.value
+            break
+          case 'phone':
+            this.formData.phone = e.detail
+            break
+          case 'custom-contact':
+            this.formData.customContact.content = e.detail
+            break
+        }
+      },
+      selectDatetime(e) {
+        this.formData.time = e.detail
+      },
+      chooseImage() {
+        const self = this
+        wx.chooseImage({
+          count: 3 - this.formData.images.length,
+          sizeType: ['original', 'compressed'],
+          sourceType: ['album', 'camera'],
+          success(res) {
+            const tempFilePaths = res.tempFilePaths
+            self.formData.images = self.formData.images.concat(tempFilePaths)
+            self.$apply()
+          }
+        })
+      },
+      previewImage(e) {
+        wx.previewImage({
+          current: e.currentTarget.id,
+          urls: this.formData.images
+        })
+      },
+      toggleActionSheet(e) {
+        for (const i in this.formData.images) {
+          if (this.formData.images[i] === e.currentTarget.id) this.imageAction.currentImageIndex = i
+        }
+        this.imageAction.show = !this.imageAction.show
+        if (!this.imageAction.show) this.imageAction.currentImageIndex = null
+      },
+      selectActionSheet(e) {
+        if (e.detail.name === '删除') {
+          this.formData.images.splice(this.imageAction.currentImageIndex, 1)
+        } else {
+          const self = this
+          const index = this.imageAction.currentImageIndex
+          wx.chooseImage({
+            count: 1,
+            sizeType: ['original', 'compressed'],
+            sourceType: ['album', 'camera'],
+            success(res) {
+              self.formData.images[index] = res.tempFilePaths[0]
+              self.$apply()
+            }
+          })
+        }
+        this.imageAction.show = false
+        this.imageAction.currentImageIndex = null
+      },
+      switchContact() {
+        this.formData.customContact.status = !this.formData.customContact.status
+      },
+      submit() {
+        const self = this
+        if (!this.checkForm()) {
+          Toast.fail('请填写完表单')
+          return
+        }
+        this.loading = true
+        // TODO: 入库
+        setTimeout(() => {
+          self.loading = false
+          self.$apply()
+          Toast.success('发布成功')
+        }, 1500)
+      //  TODO: 入库成功后跳转到首页寻模式
+      },
       next() {
         if (!this.checkForm()) {
-          // Warning Here
           Toast.fail('请填写完表单')
           return
         }
@@ -310,15 +622,44 @@
       switch (this.currentStep) {
         case 1:
           return !!this.area.length
+        case 2:
+          const formData = this.formData
+          const itemType = this.itemType
+          let flag
+          if (!itemType.length) {
+            flag = false
+          } else if (itemType[0] === '其他') {
+            flag = !!itemType[1]
+          } else if (itemType[0] === '证件') {
+            flag = !!formData.cardId
+          } else {
+            flag = !!formData.desc
+          }
+          if (formData.images.length < 1) {
+            flag = false
+          }
+          return flag
+        case 3:
+          return true
+        case 4:
+          if (this.formData.customContact.status) {
+            return !!this.formData.customContact.content
+          } else {
+            return !!this.formData.phone
+          }
       }
     }
 
     setDefaultPickerValue() {
       if (!this.currentShowPicker) return
-      const son = this.currentShowPicker
-      const parent = this.currentShowPicker + 's'
-      if (!this[son].length) {
-        this[son] = [this[parent][0].values[0], this[parent][1].values[0]]
+      if (this.currentShowPicker === 'datetime') {
+        if (!this.formData.time) this.formData.time = new Date().getTime()
+      } else {
+        const son = this.currentShowPicker
+        const parent = this.currentShowPicker + 's'
+        if (!this[son].length) {
+          this[son] = [this[parent][0].values[0], this[parent][1].values[0]]
+        }
       }
     }
   }
