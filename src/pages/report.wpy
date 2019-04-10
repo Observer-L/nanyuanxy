@@ -106,6 +106,69 @@
       padding: 0 4rpx;
     }
   }
+
+  /* SCAN */
+  .scan-wrapper {
+    position: relative;
+    width: 100%;
+    height: 400rpx;
+    overflow: hidden;
+    .add {
+      font-size: 5em;
+      color: #aaa;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .scan-frame, .scan-mask, .card {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .scan-frame {
+      z-index: 98;
+    }
+    .scan-mask {
+      z-index: 99;
+      transform: translateY(-100%);
+
+      &.scanning {
+        transform: translateY(100%);
+        animation: scanning 2s cubic-bezier(0.15, 0.44, 0.76, 0.64);
+        animation-iteration-count: infinite;
+      }
+    }
+    .card {
+    }
+  }
+
+  .icon {
+    width: 48rpx;
+    height: 48rpx;
+    display: block;
+    &.camera {
+      opacity: .7;
+    }
+  }
+
+
+  @keyframes scanning {
+    0% {
+      transform: translateY(-100%);
+    }
+    1% {
+      transform: translateY(-100%) scaleY(1);
+    }
+    99% {
+      transform: translateY(100%) scaleY(1);
+    }
+    100% {
+      transform: translateY(100%) scaleY(-1);
+    }
+  }
 </style>
 <template>
   <view style="height: 100vh; overflow:hidden;">
@@ -172,6 +235,13 @@
             />
           </van-cell>
 
+          <!--<view class="scan-wrapper" @tap="chooseCard" wx:if="{{itemType[0] === '证件'}}">-->
+            <!--<image src="../images/scan-mask.png" class="scan-mask {{scanning ? 'scanning' : ''}}"></image>-->
+            <!--<image src="../images/scan.png" class="scan-frame"></image>-->
+            <!--<view class="add" wx:if="{{!formData.images.length}}">+</view>-->
+            <!--<image src="{{formData.images[0]}}" class="card" wx:else></image>-->
+          <!--</view>-->
+
           <van-field
             wx:if="{{cardType}}"
             value="{{ formData.cardId }}"
@@ -182,7 +252,18 @@
             border="{{ false }}"
             id="card"
             @input="inputFormData"
-          ></van-field>
+            use-icon-slot="{{certificateType !== 'schoolCard' && certificateType !== 'other' }}"
+          >
+            <ocr-navigator
+              slot="icon"
+              wx:if="{{itemType[0] === '证件'}}"
+              @onSuccess="handleOCRresult"
+              certificateType="{{certificateType}}"
+            >
+              <image class="icon camera" src="../images/icons/camera-fill.png"></image>
+            </ocr-navigator>
+          </van-field>
+
 
           <van-field
             value="{{ formData.name }}"
@@ -205,7 +286,7 @@
           ></van-field>
 
 
-          <view class="weui-cells">
+          <view class="weui-cells" wx:if="{{itemType[0] !== '证件'}}">
             <view class="weui-cell">
               <view class="weui-cell__bd">
                 <view class="weui-uploader">
@@ -368,7 +449,7 @@
 <script>
   import wepy from 'wepy'
   import config from '../config'
-  import {format2FullTime} from '../utils/formatTime'
+  import {formatTime, blurId} from '../utils'
   import Toast from '../components/vant/toast/toast'
   import itemTypes from '../config/itemTypes'
 
@@ -386,7 +467,8 @@
         'van-toast': '../components/vant/toast/index',
         'van-datetime-picker': '../components/vant/datetime-picker/index',
         'van-action-sheet': '../components/vant/action-sheet/index',
-        'van-button': '../components/vant/button/index'
+        'van-button': '../components/vant/button/index',
+        'ocr-navigator': 'plugin://ocr-plugin/ocr-navigator'
       }
     }
 
@@ -455,7 +537,8 @@
           }
         ]
       },
-      loading: false
+      loading: false,
+      scanning: false
     }
 
     computed = {
@@ -469,7 +552,31 @@
         return this.itemType[0] === '证件'
       },
       formatTime() {
-        return format2FullTime(this.formData.time)
+        return formatTime.format2FullTime(this.formData.time)
+      },
+      certificateType() {
+        // 证书类型包含三种 身份证：idCard、驾驶证：drivingLicense、银行卡：bankCard
+        let type
+        if (this.itemType[0] === '证件') {
+          switch (this.itemType[1]) {
+            case '校园卡':
+              type = 'schoolCard'
+              break
+            case '身份证':
+              type = 'idCard'
+              break
+            case '银行卡':
+              type = 'bankCard'
+              break
+            case '驾驶证':
+              type = 'drivingLicense'
+              break
+            default:
+              type = 'other'
+              break
+          }
+        }
+        return type
       }
     }
 
@@ -638,6 +745,38 @@
           })
         }
       },
+      chooseCard() {
+        const self = this
+        wx.chooseImage({
+          count: 1,
+          sizeType: ['original', 'compressed'],
+          sourceType: ['album', 'camera'],
+          success(res) {
+            const tempFilePaths = res.tempFilePaths
+            self.formData.images = tempFilePaths
+            self.scanning = true
+            self.$apply()
+            self.ocr()
+          }
+        })
+      },
+      handleOCRresult(e) {
+        const result = e.detail
+        switch (this.certificateType) {
+          case 'idCard':
+            this.formData.cardId = blurId(result.id)
+            this.formData.name = result.name
+            break
+          case 'bankCard':
+            this.formData.cardId = blurId(result.number)
+            this.formData.name = result.bankName
+            break
+          case 'drivingLicense':
+            this.formData.cardId = result.vehicleType
+            this.formData.name = result.owner
+            break
+        }
+      },
       next() {
         if (!this.checkForm()) {
           Toast.fail('请填写完表单')
@@ -650,6 +789,29 @@
         this.percent -= 25
         this.currentStep -= 1
       }
+    }
+
+    ocr() {
+      const self = this
+      const access_token = wx.getStorageSync('access_token').access_token
+      const img_url = encodeURI(this.formData.images[0])
+      // wx.request({
+      //   url: `https://api.weixin.qq.com/cv/ocr/idcard`, // 仅为示例，并非真实的接口地址
+      //   method: 'POST',
+      //   data: {
+      //     type: 'MODE',
+      //     img_url,
+      //     access_token
+      //   },
+      //   header: {
+      //     'content-type': 'application/json'
+      //   },
+      //   success(res) {
+      //     console.log(res.data)
+      //     self.scanning = false
+      //     self.$apply()
+      //   }
+      // })
     }
 
     onLoad(options) {
@@ -676,7 +838,7 @@
           } else {
             flag = !!formData.desc
           }
-          if (formData.images.length < 1) {
+          if (itemType[0] !== '证件' && formData.images.length < 1) {
             flag = false
           }
           return flag

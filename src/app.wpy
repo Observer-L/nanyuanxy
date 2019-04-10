@@ -38,10 +38,10 @@
       },
       requiredBackgroundModes: ['audio'],
       plugins: {
-        // 'ocr-plugin': {
-        //   version: '2.0.2',
-        //   provider: 'wx4418e3e031e551be'
-        // }
+        'ocr-plugin': {
+          version: '2.0.2',
+          provider: 'wx4418e3e031e551be'
+        }
       }
     }
 
@@ -62,6 +62,7 @@
         env: config.env,
         traceUser: true
       })
+      this.checkAccessToken()
     }
 
     loadMarkers() {
@@ -131,6 +132,22 @@
         store.dispatch(saveMarkers(cleanData))
         resolve(cleanData)
       })
+    }
+
+    checkAccessToken() {
+      const cache = wx.getStorageSync('access_token')
+      const now = new Date().getTime() / 1000
+      if (cache && now < cache.expires_in) {
+        console.log('token有效')
+      } else {
+        console.log('从数据库拿token做缓存')
+        wx.cloud.database().collection('access_token').doc('XKtAj1sqTi00tq-W').get().then(res => {
+          wx.setStorage({
+            key: 'access_token',
+            data: res.data
+          })
+        })
+      }
     }
   }
 </script>

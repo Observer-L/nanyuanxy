@@ -644,7 +644,6 @@
               for (const j of i.data) {
                 if (j.name === point.name) {
                   point = Object.assign(point, j)
-                  console.log(point)
                 }
               }
             }
