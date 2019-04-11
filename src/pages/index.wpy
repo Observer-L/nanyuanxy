@@ -4,7 +4,6 @@
   .sidebar {
     position: absolute;
     right: @sidebarPadding;
-    top: @sidebarPadding;
     display: flex;
     padding: @sidebarPadding;
     flex-direction: column;
@@ -26,7 +25,7 @@
   .cats {
     position: absolute;
     right: @sidebarPadding;
-    top: (@sidebarSize * 4) + @sidebarPadding * 6;
+    margin-top: @sidebarPadding * 5 + @sidebarSize * 4;
     width: @sidebarSize + (@sidebarPadding * 2);
     background: @grayBg;
     color: #fff;
@@ -317,7 +316,7 @@
         <cover-view class="close">X</cover-view>
       </cover-view>
       <!-- SIDEBAR -->
-      <cover-view class="sidebar">
+      <cover-view class="sidebar" style="top:{{menuButtonPos}}px">
         <cover-view class="btn">comment</cover-view>
         <cover-view class="btn" @tap="handleMarkerTap">intro</cover-view>
         <cover-view class="btn" @tap="show360">360</cover-view>
@@ -327,6 +326,7 @@
         >cat</cover-view>
       </cover-view>
       <cover-view
+        style="top:{{menuButtonPos}}px"
         class="cats {{showCats ? 'active' : ''}}"
         @tap="switchCat"
       >
@@ -416,7 +416,8 @@
 
   export default class Index extends wepy.page {
     config = {
-      navigationBarTitleText: 'test'
+      navigationBarTitleText: 'test',
+      navigationStyle: 'custom'
     }
 
     data = {
@@ -462,6 +463,10 @@
       },
       routeMode() {
         return !!this.currentRoute.polyline[0].points.length
+      },
+      menuButtonPos() {
+        const menuButtonPos = wx.getMenuButtonBoundingClientRect()
+        return menuButtonPos.top + menuButtonPos.height
       }
     }
 
@@ -622,10 +627,6 @@
       })
 
       this.mapCtx = wx.createMapContext('map')
-    }
-
-    onShow() {
-      // this.music = wepy.$store.getState().musicPlayer.music
     }
 
     includePoints(padding) {
