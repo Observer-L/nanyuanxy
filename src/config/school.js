@@ -7,9 +7,9 @@ export default {
   logo: 'nfsysu',
   music: {
     src: 'cloud://xy-dev.7879-xy-dev/music/nanfang.mp3',
-    coverImg: 'cloud://xy-dev.7879-xy-dev/music/nanfang.jpg',
+    coverImgUrl: 'cloud://xy-dev.7879-xy-dev/music/nanfang.jpg',
     duration: 295,
-    title: '校歌'
+    title: 'haha'
   },
   desc: '校园介绍文字',
   images: [

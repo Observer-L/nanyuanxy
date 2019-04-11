@@ -64,6 +64,8 @@
     }
   }
 
+  /* MUSIC */
+
   @keyframes play{
     0%{transform: rotate(0deg);}
     100%{transform: rotate(360deg);}
@@ -105,6 +107,7 @@
         top:@coverSize / 2;
         left:@coverSize / 2;
         transform: translate(-50%, -50%);
+        color: @themeColorY;
       }
     }
   }
@@ -145,12 +148,31 @@
           <view class="action" @tap="navigate">导航</view>
         </view>
       </view>
-      <view
-        wx:if="{{marker.music}}"
-        class="music-player"
-      >
-        <MusicPlayer></MusicPlayer>
+
+      <view wx:if="{{marker.music}}" class="music-player">
+        <view class="mp-wrapper">
+          <view class="timeline">
+            <view class="start time">{{FormatCurrentTime}}</view>
+            <slider
+              value="{{music.sliderValue}}"
+              min="0"
+              max="{{music.sliderMax}}"
+              @change="onChangeSlide"
+              step="1"
+            ></slider>
+            <view class="end time">{{music.duration}}</view>
+          </view>
+          <view class="cover-wrapper" @tap="play">
+            <image
+              class="cover {{music.isPlaying ? 'play' : 'pause'}}"
+              src="{{music.coverImgUrl}}">
+            </image>
+            <view class="control">{{music.isPlaying ? 'Pause' : 'Play'}}</view>
+          </view>
+        </view>
+        <!--<MusicPlayer></MusicPlayer>-->
       </view>
+
       <view class="more">
         <view class="info address" wx:if="{{marker.contact.address}}">icon {{marker.contact.address}}</view>
         <view class="info phone" wx:if="{{marker.contact.phone}}">icon {{marker.contact.phone}}</view>
@@ -169,6 +191,7 @@
   import { connect } from 'wepy-redux'
   import { getTargetMarker } from '../store/actions'
   import MusicPlayer from '../components/music-player'
+  import {formatTime2Duration} from '../utils/formatTime'
   import config from '../config'
 
   @connect({
@@ -187,7 +210,28 @@
     }
 
     data = {
-      marker: {}
+      marker: {},
+      music: {
+        audioCtx: null,
+        isReady: false,
+        isPlaying: false,
+        isSliding: false,
+        title: '',
+        artists: '',
+        coverImgUrl: '',
+        start: '00:00',
+        end: '00:00',
+        sliderValue: 0,
+        sliderMax: 0,
+        currentTime: 0,
+        duration: 100
+      }
+    }
+
+    computed = {
+      FormatCurrentTime() {
+        return formatTime2Duration(this.music.currentTime)
+      }
     }
 
     methods = {
@@ -211,10 +255,35 @@
         wx.navigateTo({
           url: './web-view?scene_id=' + this.marker.panorama
         })
+      },
+    //  MUSIC
+      play() {
+        const self = this
+        const music = this.music
+        if (!music.audioCtx.src) {
+          console.log('no audio title', music.audioCtx)
+          music.audioCtx.title = music.title
+          music.audioCtx.src = music.src
+          music.isPlaying = true
+          // setTimeout(() => {
+          //   music.audioCtx.pause()
+          // }, 10)
+          return
+        }
+        if (music.isPlaying) {
+          console.log('pause')
+          music.audioCtx.pause()
+          music.isPlaying = false
+        } else {
+          console.log('play')
+          music.audioCtx.play()
+          music.isPlaying = true
+        }
       }
     }
 
     onLoad(options) {
+      const self = this
       if (options.id) {
         options.id = Number(options.id)
         options.type = options.mode === 'you' ? decodeURI(options.type) : ''
@@ -225,17 +294,46 @@
       }
 
       if (this.marker.music) {
-        const ctx = this.$parent.globalData.audioCtx
-        this.$invoke('MusicPlayer', 'init', {
-          id: this.marker.id,
-          music: this.marker.music,
-          ctx
-        })
-        ctx.onTimeUpdate(() => {
-          this.$invoke('MusicPlayer', 'updateTime', ctx.currentTime)
-        })
-      }
+        if (!this.music.audioCtx) {
+          // MUSIC
+          const music = this.marker.music
+          const audioCtx = this.$parent.globalData.audioCtx
+          this.music.audioCtx = this.$parent.globalData.audioCtx
+          this.music.title = music.title
+          this.music.src = music.src
+          this.music.artists = music.artists
+          this.music.coverImgUrl = music.coverImgUrl
+          this.music.duration = formatTime2Duration(music.duration)
+          this.music.currentTime = 0
+          this.music.sliderMax = music.duration
+          this.music.sliderValue = 0
+          console.log(this.music)
 
+          audioCtx.coverImgUrl = this.music.coverImgUrl
+
+          audioCtx.onPlay(() => {
+            self.music.isPlaying = true
+            self.$apply()
+          })
+          audioCtx.onPause(() => {
+            self.music.isPlaying = false
+            self.$apply()
+          })
+
+          audioCtx.onTimeUpdate(() => {
+            self.music.currentTime = audioCtx.currentTime
+            self.$apply()
+          })
+        } else {
+          console.log('更新数据')
+          this.music.currentTime = 0
+          this.music.sliderMax = this.music.duration
+          this.music.sliderValue = 0
+        }
+      }
+    }
+
+    setPlayingMusic(currentPos) {
     }
   }
 </script>
