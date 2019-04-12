@@ -290,6 +290,33 @@
       border-right: 20rpx solid #CB4042;
     }
   }
+
+  /* MESSAGES */
+  .message-wrapper {
+    position: absolute;
+    width: 86vw;
+    margin-top: @sidebarPadding;
+    right: @sidebarPadding * 2;
+    height: @sidebarSize;
+    border-radius: @sidebarSize;
+    background: rgba(0,0,0,.2);
+    transition: all .3s ease;
+    opacity: 0;
+    transform: translateX(86vw);
+    &.active {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .message {
+      text-align: center;
+      line-height: @sidebarSize;
+      transform: translateY(-@sidebarSize);
+      transition: all 2s ease;
+      &.active {
+        transform: translateY(0);
+      }
+    }
+  }
 </style>
 
 <template>
@@ -315,9 +342,18 @@
         <cover-view class="title">「南芳」 播放中</cover-view>
         <cover-view class="close">X</cover-view>
       </cover-view>
+      <!-- MESSAGES -->
+      <cover-view class="message-wrapper {{showMessagesBar ? 'active' : ''}}" style="top:{{menuButtonPos}}px">
+        <cover-view
+          class="message {{activeMessage ? 'active' : ''}}"
+          @transitionend="switchMessage"
+        >
+          {{message}}
+        </cover-view>
+      </cover-view>
       <!-- SIDEBAR -->
       <cover-view class="sidebar" style="top:{{menuButtonPos}}px">
-        <cover-view class="btn">comment</cover-view>
+        <cover-view class="btn" @tap="showBoard">board</cover-view>
         <cover-view class="btn" @tap="handleMarkerTap">intro</cover-view>
         <cover-view class="btn" @tap="show360">360</cover-view>
         <cover-view
@@ -417,7 +453,8 @@
   export default class Index extends wepy.page {
     config = {
       navigationBarTitleText: 'test',
-      navigationStyle: 'custom'
+      navigationStyle: 'custom',
+      disableScroll: true
     }
 
     data = {
@@ -443,7 +480,11 @@
             ...config.markerStyle.polylineStyle
           }
         ]
-      }
+      },
+      activeMessage: false,
+      message: 'X',
+      timer: null,
+      showMessagesBar: false
     }
 
     computed = {
@@ -489,6 +530,11 @@
             url: './detail'
           })
         }
+      },
+      showBoard() {
+        wx.navigateTo({
+          url: this.Ymode ? './board' : './items'
+        })
       },
       toggleCats() {
         this.showCats = !this.showCats
@@ -601,6 +647,14 @@
         const targetMarker = this.currentRoute.polyline[0].points[id]
         this.mapCenter = targetMarker.location
         this.scale = 18
+      },
+      switchMessage() {
+        console.log('switch')
+        const self = this
+        setTimeout(() => {
+          self.activeMessage = false
+          self.$apply()
+        }, 1000)
       }
     }
 
@@ -627,6 +681,8 @@
       })
 
       this.mapCtx = wx.createMapContext('map')
+
+      this.loadMessages()
     }
 
     includePoints(padding) {
@@ -652,6 +708,28 @@
         }
       }
       this.routes = routes
+    }
+
+    loadMessages() {
+      console.log('load message')
+      const self = this
+      const timer = setInterval(() => {
+        self.activeMessage = true
+        self.message += 'X'
+        self.$apply()
+      }, 5000)
+      this.timer = timer
+    }
+
+    onShow() {
+      this.loadMessages()
+      this.showMessagesBar = true
+    }
+
+    onHide() {
+      this.showMessagesBar = false
+      console.log('clear timer')
+      clearInterval(this.timer)
     }
   }
 </script>

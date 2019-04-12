@@ -1,0 +1,79 @@
+<style lang="less">
+  @import "../styles/base";
+  .options {
+    width: 100%;
+    height: 80rpx;
+    background: @grayBg;
+  }
+  .results {
+    .result {
+      width: 100%;
+      height: 260rpx;
+      background: @grayBg;
+      opacity: .5;
+      &:not(:last-child) {
+        margin-bottom: 20rpx;
+      }
+    }
+  }
+</style>
+
+<template>
+  <view>
+
+    <view class="options">筛选</view>
+
+    <view class="results">
+      <block
+        wx:for="{{Xmarkers}}"
+        wx:key="item.type"
+        wx:for-item="markers"
+      >
+        <view
+          class="result"
+          wx:for="{{markers.data}}"
+          wx:key="index"
+          data-id="{{item.id}}"
+          @tap="showDetail"
+        >
+          <view>{{item.name}}</view>
+        </view>
+      </block>
+
+    </view>
+
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+
+  @connect({
+    Xmarkers(state) {
+      return state.markers.markers.Xmarkers
+    }
+  })
+
+  export default class Items extends wepy.page {
+    config = {
+      navigationBarTitleText: 'test'
+    }
+
+    data = {
+    }
+
+    methods = {
+      showDetail(e) {
+        const id = e.currentTarget.dataset.id
+        wx.navigateTo({
+          url: './detail?id=' + id
+        })
+      }
+    }
+
+    onLoad() {
+      console.log(this.Xmarkers)
+    }
+  }
+</script>

@@ -1,0 +1,82 @@
+<style lang="less">
+  @import "../styles/base";
+
+  .board {
+    position: relative;
+    top: 20rpx;
+    width: 86%;
+    margin: 0 auto;
+    background: #fcfcfc;
+    padding: 20rpx;
+    box-sizing: border-box;
+    border-radius: 4px;
+    box-shadow: 0px 1px 1px 1px #ccc;
+    .title {
+      font-size: 2em;
+      text-align: center;
+    }
+  }
+
+  .container {
+  }
+</style>
+<template>
+  <view>
+    <view class="board">
+
+      <view class="title">LOGO</view>
+      <view class="container">
+        <van-collapse value="{{ activeNames }}" bind:change="onChange">
+
+          <van-collapse-item title="有赞微商城" name="1">
+            提供多样店铺模板，快速搭建网上商城
+          </van-collapse-item>
+
+          <van-collapse-item title="有赞零售" name="2">
+            网店吸粉获客、会员分层营销、一机多种收款，告别经营低效和客户流失
+            线上拓客，随时预约，贴心顺手的开单收银
+            线上拓客，随时预约，贴心顺手的开单收银
+            线上拓客，随时预约，贴心顺手的开单收银
+          </van-collapse-item>
+
+          <van-collapse-item title="有赞零售" name="3">
+            网店吸粉获客、会员分层营销、一机多种收款，告别经营低效和客户流失
+            线上拓客，随时预约，贴心顺手的开单收银
+          </van-collapse-item>
+
+          <van-collapse-item title="有赞美业" name="4" disabled>
+            线上拓客，随时预约，贴心顺手的开单收银
+          </van-collapse-item>
+
+        </van-collapse>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Board extends wepy.page {
+    config = {
+      navigationBarTitleText: '游览助手',
+      usingComponents: {
+        'van-collapse': '../components/vant/collapse/index',
+        'van-collapse-item': '../components/vant/collapse-item/index'
+      }
+    }
+
+    data = {
+      activeNames: ['1']
+    }
+
+    methods = {
+      onChange(e) {
+        this.activeNames = e.detail
+      }
+    }
+
+    onLoad() {
+    }
+  }
+</script>

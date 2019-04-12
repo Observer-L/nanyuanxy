@@ -23,6 +23,8 @@
         'pages/detail',
         'pages/search',
         'pages/report',
+        'pages/board',
+        'pages/items',
         'pages/web-view'
       ],
       window: {
