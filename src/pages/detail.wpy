@@ -1,9 +1,14 @@
 <style lang="less">
-  @import "../styles/base";
+  @import "../styles/index";
 
   @swiperSize: 400rpx;
   @logoSize: 140rpx;
   @padding: 10rpx;
+
+  page {
+    background: #f8f8f8;
+  }
+
   #swiper {
     height: @swiperSize;
 
@@ -15,6 +20,7 @@
 
   .header {
     .head {
+      background: #ffffff;
       display: flex;
       padding: @padding*2 @padding;
 
@@ -38,78 +44,49 @@
         .name {
           letter-spacing: 2px;
         }
+
+        .action {
+          width: 64rpx;
+          height: 58rpx;
+        }
       }
-    }
-    .music-player {
-      padding: 0 @padding;
-      // background: @grayBg;
     }
     .more {
+      background: #ffffff;
       padding: @padding;
+      margin-bottom: @padding*2;
       .info {
+        display: flex;
         font-size: 12px;
-        padding: @padding 0;
-      }
-      .info:nth-child(odd) {
-        background: @themeColorY;
+        padding: @padding;
+        align-items: center;
+        .icon {
+          width: 42rpx;
+          height: 36rpx;
+          margin-right: 8rpx;
+        }
       }
     }
     .desc {
-      padding: @padding*2 @padding;
+      background: #ffffff;
+      padding: @padding*2;
       .title{
+        margin-bottom: @padding*2;
+        &:before {
+          content: '|';
+          color: @themeColorY;
+          margin-right: 8rpx;
+        }
       }
       .content {
-        font-size: 16px;
+        font-size: 14px;
       }
     }
   }
 
-  /* MUSIC */
-
-  @keyframes play{
-    0%{transform: rotate(0deg);}
-    100%{transform: rotate(360deg);}
-  }
-
-  .mp-wrapper {
-    display: flex;
-    justify-content: space-around;
-    .timeline {
-      display: flex;
-      align-items:center;
-      width: 80%;
-      .time {
-        font-size: 9px;
-        color: #000;
-      }
-      slider {
-        flex: 1;
-      }
-    }
-
-    @coverSize: 120rpx;
-    .cover-wrapper {
-      position: relative;
-      .cover {
-        width:@coverSize;
-        height:@coverSize;
-        border-radius:50%;
-        animation: play 10s linear infinite;
-        &.play{
-          animation-play-state: running;
-        }
-        &.pause {
-          animation-play-state: paused;
-        }
-      }
-      .control {
-        position:absolute;
-        top:@coverSize / 2;
-        left:@coverSize / 2;
-        transform: translate(-50%, -50%);
-        color: @themeColorY;
-      }
-    }
+  .music-player {
+    background: #ffffff;
+    padding: 20rpx 10rpx;
   }
 </style>
 
@@ -137,7 +114,7 @@
       </block>
     </swiper>
     <view class="header">
-      <view class="head {{}}">
+      <view class="head van-hairline--bottom">
         <image
           class="logo"
           wx:if="{{marker.logo}}"
@@ -145,39 +122,40 @@
         ></image>
         <view class="title">
           <view class="name">{{marker.name}}</view>
-          <view class="action" @tap="navigate">导航</view>
+          <image class="action navigate" src="../images/icons/navigate.png" @tap="navigate"></image>
         </view>
-      </view>
-
-      <view wx:if="{{marker.music}}" class="music-player">
-        <view class="mp-wrapper">
-          <view class="timeline">
-            <view class="start time">{{FormatCurrentTime}}</view>
-            <slider
-              value="{{music.sliderValue}}"
-              min="0"
-              max="{{music.sliderMax}}"
-              @change="onChangeSlide"
-              step="1"
-            ></slider>
-            <view class="end time">{{music.duration}}</view>
-          </view>
-          <view class="cover-wrapper" @tap="play">
-            <image
-              class="cover {{music.isPlaying ? 'play' : 'pause'}}"
-              src="{{music.coverImgUrl}}">
-            </image>
-            <view class="control">{{music.isPlaying ? 'Pause' : 'Play'}}</view>
-          </view>
-        </view>
-        <!--<MusicPlayer></MusicPlayer>-->
       </view>
 
       <view class="more">
-        <view class="info address" wx:if="{{marker.contact.address}}">icon {{marker.contact.address}}</view>
-        <view class="info phone" wx:if="{{marker.contact.phone}}">icon {{marker.contact.phone}}</view>
-        <view class="info panorama" wx:if="{{marker.panorama}}" @tap="show360">icon 全景观看</view>
+        <view class="info address" wx:if="{{marker.contact.address}}" @tap="navigate">
+          <image class="icon" src="../images/icons/location_map.png"></image>
+          <view class="content">{{marker.contact.address}}</view>
+        </view>
+        <view class="info phone" wx:if="{{marker.contact.phone}}" @tap="call">
+          <image class="icon" src="../images/icons/contact.png"></image>
+          <view class="content">{{marker.contact.phone}}</view>
+        </view>
+        <view class="info panorama" wx:if="{{marker.panorama}}" @tap="show360">
+          <image class="icon" src="../images/icons/sidebar/panorama.png"></image>
+          <view class="content">全景看景</view>
+        </view>
+
+        <view class="music-player">
+          <audio
+            wx:if="{{marker.music}}"
+            poster="{{marker.music.poster}}"
+            name="{{marker.music.name}}"
+            author="{{marker.music.author}}"
+            src="{{marker.music.src}}"
+            id="myAudio"
+            controls
+            loop
+          ></audio>
+        </view>
+
       </view>
+
+
       <view class="desc">
         <view class="title">简介</view>
         <view class="content">{{marker.desc}}</view>
@@ -190,8 +168,6 @@
   import wepy from 'wepy'
   import { connect } from 'wepy-redux'
   import { getTargetMarker } from '../store/actions'
-  import MusicPlayer from '../components/music-player'
-  import {formatTime2Duration} from '../utils/formatTime'
   import config from '../config'
 
   @connect({
@@ -202,36 +178,24 @@
 
   export default class Detail extends wepy.page {
     config = {
-      navigationBarTitleText: 'test'
+      navigationBarTitleText: '详情'
     }
 
     components = {
-      MusicPlayer
     }
 
     data = {
       marker: {},
+      audioCtx: null,
       music: {
-        audioCtx: null,
-        isReady: false,
-        isPlaying: false,
-        isSliding: false,
-        title: '',
-        artists: '',
-        coverImgUrl: '',
-        start: '00:00',
-        end: '00:00',
-        sliderValue: 0,
-        sliderMax: 0,
-        currentTime: 0,
-        duration: 100
+        poster: 'http://y.gtimg.cn/music/photo_new/T002R300x300M000003rsKF44GyaSk.jpg?max_age=2592000',
+        name: '此时此刻',
+        author: '许巍',
+        src: 'http://ws.stream.qqmusic.qq.com/M500001VfvsJ21xFqb.mp3?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&vkey=6292F51E1E384E06DCBDC9AB7C49FD713D632D313AC4858BACB8DDD29067D3C601481D36E62053BF8DFEAF74C0A5CCFADD6471160CAF3E6A&fromtag=46',
       }
     }
 
     computed = {
-      FormatCurrentTime() {
-        return formatTime2Duration(this.music.currentTime)
-      }
     }
 
     methods = {
@@ -239,8 +203,8 @@
         const targetId = e.target.dataset.id
         console.log(this.marker.images[targetId])
         wx.previewImage({
-          current: this.marker.images[targetId], // 当前显示图片的http链接
-          urls: this.marker.images // 需要预览的图片http链接列表
+          current: this.marker.images[targetId],
+          urls: this.marker.images
         })
       },
       navigate() {
@@ -256,29 +220,8 @@
           url: './web-view?scene_id=' + this.marker.panorama
         })
       },
-    //  MUSIC
-      play() {
-        const self = this
-        const music = this.music
-        if (!music.audioCtx.src) {
-          console.log('no audio title', music.audioCtx)
-          music.audioCtx.title = music.title
-          music.audioCtx.src = music.src
-          music.isPlaying = true
-          // setTimeout(() => {
-          //   music.audioCtx.pause()
-          // }, 10)
-          return
-        }
-        if (music.isPlaying) {
-          console.log('pause')
-          music.audioCtx.pause()
-          music.isPlaying = false
-        } else {
-          console.log('play')
-          music.audioCtx.play()
-          music.isPlaying = true
-        }
+      call() {
+        wx.makePhoneCall({phoneNumber: this.marker.contact.phone})
       }
     }
 
@@ -292,48 +235,11 @@
       } else {
         this.marker = config.school
       }
-
-      if (this.marker.music) {
-        if (!this.music.audioCtx) {
-          // MUSIC
-          const music = this.marker.music
-          const audioCtx = this.$parent.globalData.audioCtx
-          this.music.audioCtx = this.$parent.globalData.audioCtx
-          this.music.title = music.title
-          this.music.src = music.src
-          this.music.artists = music.artists
-          this.music.coverImgUrl = music.coverImgUrl
-          this.music.duration = formatTime2Duration(music.duration)
-          this.music.currentTime = 0
-          this.music.sliderMax = music.duration
-          this.music.sliderValue = 0
-          console.log(this.music)
-
-          audioCtx.coverImgUrl = this.music.coverImgUrl
-
-          audioCtx.onPlay(() => {
-            self.music.isPlaying = true
-            self.$apply()
-          })
-          audioCtx.onPause(() => {
-            self.music.isPlaying = false
-            self.$apply()
-          })
-
-          audioCtx.onTimeUpdate(() => {
-            self.music.currentTime = audioCtx.currentTime
-            self.$apply()
-          })
-        } else {
-          console.log('更新数据')
-          this.music.currentTime = 0
-          this.music.sliderMax = this.music.duration
-          this.music.sliderValue = 0
-        }
-      }
     }
 
-    setPlayingMusic(currentPos) {
+    onReady(e) {
+      // 使用 wx.createAudioContext 获取 audio 上下文 context
+      this.audioCtx = wx.createAudioContext('myAudio')
     }
   }
 </script>

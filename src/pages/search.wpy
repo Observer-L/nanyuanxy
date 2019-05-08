@@ -15,16 +15,15 @@
     }
   }
 
-  @cellIconSize: 60rpx;
-
   .cell-icon {
     position: relative;
-    width: @cellIconSize;
-    height: @cellIconSize;
-    bottom: @cellIconSize / 10;
-    padding-right: @cellIconSize / 6;
+    width: 46rpx;
+    height: 62rpx;
+    // bottom: @cellIconSize / 10;
+    padding-right: 20rpx;
   }
 </style>
+
 
 <template>
   <view>
@@ -107,10 +106,17 @@
 
 <script>
   import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+
+  @connect({
+    markers(state) {
+      return state.markers.markers
+    }
+  })
 
   export default class Search extends wepy.page {
     config = {
-      navigationBarTitleText: 'test',
+      navigationBarTitleText: '搜索',
       usingComponents: {
         'van-search': '../components/vant/search/index',
         'van-tab': '../components/vant/tab/index',
@@ -121,7 +127,6 @@
 
     data = {
       mode: 'you',
-      markers: {},
       activeTypeY: 0,
       activeTypeX: 0,
       results: [],
@@ -132,7 +137,6 @@
       input(e) {
         this.results = []
         const kw = e.detail
-        // const markers = this.mode === 'you' ? this.markers.Ymarkers : this.markers.Xmarkers
         const markers = [...this.markers.Ymarkers, ...this.markers.Xmarkers]
         if (kw !== '') {
           for (const i of markers) {
@@ -170,7 +174,6 @@
 
     onLoad(options) {
       this.mode = options.mode
-      this.markers = wepy.$store.getState().markers.markers
     }
   }
 </script>

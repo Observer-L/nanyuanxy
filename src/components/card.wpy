@@ -1,20 +1,5 @@
 <style lang="less">
   @import "../styles/base";
-  .options {
-    width: 100%;
-    height: 80rpx;
-    background: @grayBg;
-  }
-  .results {
-    .result {
-      width:95vw;
-      margin:20rpx auto;
-
-      &:not(:last-child) {
-        margin-bottom: 20rpx;
-      }
-    }
-  }
   .item {
     &.lost {
       .item_title {
@@ -74,6 +59,8 @@
     }
   }
   .card {
+    width: 95vw;
+    margin: 20rpx auto;
     .card_body {
       background: #fff;
       border-width: 2px;
@@ -107,68 +94,64 @@
 </style>
 
 <template>
-  <view>
-
-    <view class="options">筛选</view>
-
-    <view class="results">
-      <block
-        wx:for="{{Xmarkers}}"
-        wx:key="item.type"
-        wx:for-item="markers"
-      >
-
-
-          <repeat for="{{markers.data}}" key="index" index="index" item="item">
-            <card :item.sync="item"></card>
-          </repeat>
-
-      </block>
-
-
-
+  <view @tap="handleClickItem" class="card">
+    <view class="item {{item.type}}">
+      <view class="item_title">
+        <view class="item_status">
+          <text>{{item.type}}</text>
+        </view>
+        <view class="item_reported_time">
+          <text class="item_reported_time_prefix">发布时间：</text>
+          <text>{{fullTime}}</text>
+        </view>
+      </view>
     </view>
-
+    <van-card
+      tag="标签"
+      title="{{item.cat}} - {{item.name}}"
+      thumb="{{item.images[0]}}"
+      custom-class="card_body {{item.type}}"
+    >
+      <view slot="desc" class="details">
+        <view class="detail detail_time">
+          <view class="prefix">{{item.type === 'lost' ? '丢失时间' : '拾取时间'}}：</view>
+          <view class="content">{{item.fullTime}}</view>
+        </view>
+        <view class="detail detail_desc" wx:if="{{item.desc}}">
+          <view class="prefix">描述：</view>
+          <view class="content van-ellipsis">{{item.desc}}</view>
+        </view>
+      </view>
+    </van-card>
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
-  import Card from '../components/card'
-  import { connect } from 'wepy-redux'
+  import { format2FullTime } from '../utils/formatTime'
 
-  @connect({
-    Xmarkers(state) {
-      return state.markers.markers.Xmarkers
-    }
-  })
-
-  export default class Items extends wepy.page {
-    config = {
-      navigationBarTitleText: 'LOST&FOUND BOX',
-      usingComponents: {
-        'van-card': '../components/vant/card/index'
-      }
-    }
-
-    components = {
-      card: Card
+  export default class Card extends wepy.component {
+    props = {
+      item: Object
     }
 
     computed = {
+      itemType() {
+        if (this.item) {
+          return this.item.type.toUpperCase()
+        }
+      }
     }
 
     methods = {
-      showDetail(e) {
-        const id = e.currentTarget.dataset.id
+      handleClickItem() {
         wx.navigateTo({
-          url: './detail?id=' + id
+          url: '/pages/detail?id=' + this.info.id
         })
       }
     }
 
     onLoad() {
-      console.log(this.Xmarkers)
     }
   }
 </script>

@@ -10,8 +10,6 @@
     &.small {
       height: 40vh;
       .location {
-        /*left:100%;*/
-        /*transform:translateX(-100%);*/
         transform:translateX(55vw);
       }
     }
@@ -451,11 +449,11 @@
   import config from '../config'
   import {formatTime, blurId} from '../utils'
   import Toast from '../components/vant/toast/toast'
-  import itemTypes from '../config/itemTypes'
+  // import itemTypes from '../config/itemTypes'
 
   export default class Report extends wepy.page {
     config = {
-      navigationBarTitleText: 'test',
+      navigationBarTitleText: '报告',
       disableScroll: true,
       usingComponents: {
         'i-progress': '../components/iview/progress/index',
@@ -582,6 +580,7 @@
 
     methods = {
       chooseLocation() {
+        console.log(123)
         const self = this
         wx.chooseLocation({
           success(res) {
@@ -591,6 +590,9 @@
             self.scale = 18
             self.percent = 25
             self.$apply()
+          },
+          fail(e) {
+            console.log(e)
           }
         })
       },
@@ -789,29 +791,6 @@
         this.percent -= 25
         this.currentStep -= 1
       }
-    }
-
-    ocr() {
-      const self = this
-      const access_token = wx.getStorageSync('access_token').access_token
-      const img_url = encodeURI(this.formData.images[0])
-      // wx.request({
-      //   url: `https://api.weixin.qq.com/cv/ocr/idcard`, // 仅为示例，并非真实的接口地址
-      //   method: 'POST',
-      //   data: {
-      //     type: 'MODE',
-      //     img_url,
-      //     access_token
-      //   },
-      //   header: {
-      //     'content-type': 'application/json'
-      //   },
-      //   success(res) {
-      //     console.log(res.data)
-      //     self.scanning = false
-      //     self.$apply()
-      //   }
-      // })
     }
 
     onLoad(options) {

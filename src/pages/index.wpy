@@ -1,4 +1,5 @@
 <style lang="less">
+  @import "../components/vant/common/index.wxss";
   @import "../styles/base";
   /* SIDEBAR */
   .sidebar {
@@ -7,14 +8,12 @@
     display: flex;
     padding: @sidebarPadding;
     flex-direction: column;
-    border: 1px dotted #aaa;
+    /*border: 1px dotted #aaa;*/
 
     .btn {
       width: @sidebarSize;
       height: @sidebarSize;
-      border-radius: 50%;
-      background: @grayBg;
-      color: #fff;
+      /*border-radius: 50%;*/
 
       &:not(:last-child) {
         margin-bottom: @sidebarPadding;
@@ -27,10 +26,12 @@
     right: @sidebarPadding;
     margin-top: @sidebarPadding * 5 + @sidebarSize * 4;
     width: @sidebarSize + (@sidebarPadding * 2);
-    background: @grayBg;
+    // background: @grayBg;
     color: #fff;
     opacity: 0;
     transform: translateX(@sidebarSize + (@sidebarPadding * 3));
+    text-transform: uppercase;
+    font-size: 16px;
     transition: all .3s ease;
 
     &.active {
@@ -45,6 +46,7 @@
       line-height: @sidebarSize;
       text-align: center;
       transition: all .3s ease;
+      border-radius: 2px;
 
       &:not(:last-child) {
         margin-bottom: @sidebarPadding / 2;
@@ -83,12 +85,8 @@
       line-height: @FABsize;
       text-align: center;
       border-radius: 50%;
-      background: @themeColorY;
-
-      &.xun {
-        background: @themeColorX;
-      }
     }
+
   }
 
   /*　MP PREVIEW　*/
@@ -138,6 +136,7 @@
       transform: scale(1);
     }
   } */
+
   .deck {
     &.active {
       .option {
@@ -212,6 +211,8 @@
 
   /* LOCATION & SEARCH */
   .location, .search {
+    width: @FABsize / 2;
+    height: @FABsize / 2;
     position: absolute;
     bottom: @FABsize * 1.75;
     transform: translate(0, 0);
@@ -243,7 +244,7 @@
     height: 20vh;
     padding: 20rpx;
     box-sizing: border-box;
-    background: @grayBg;
+    // background: @grayBg;
     overflow: hidden;
     .close {
       position: absolute;
@@ -271,8 +272,8 @@
           flex-direction: column;
           align-items:center;
           image {
-            width: 60rpx;
-            height: 60rpx;
+            width: 64rpx;
+            height: 96rpx;
           }
           .name {
             font-size: 12px;
@@ -310,11 +311,7 @@
     .message {
       text-align: center;
       line-height: @sidebarSize;
-      transform: translateY(-@sidebarSize);
-      transition: all 2s ease;
-      &.active {
-        transform: translateY(0);
-      }
+      padding:0 76rpx 0 24rpx;
     }
   }
 </style>
@@ -345,21 +342,21 @@
       <!-- MESSAGES -->
       <cover-view class="message-wrapper {{showMessagesBar ? 'active' : ''}}" style="top:{{menuButtonPos}}px">
         <cover-view
-          class="message {{activeMessage ? 'active' : ''}}"
-          @transitionend="switchMessage"
+          class="message van-ellipsis"
         >
           {{message}}
         </cover-view>
       </cover-view>
       <!-- SIDEBAR -->
       <cover-view class="sidebar" style="top:{{menuButtonPos}}px">
-        <cover-view class="btn" @tap="showBoard">board</cover-view>
-        <cover-view class="btn" @tap="handleMarkerTap">intro</cover-view>
-        <cover-view class="btn" @tap="show360">360</cover-view>
-        <cover-view
+        <cover-image class="btn" @tap="showBoard" src="../images/icons/sidebar/board.png"></cover-image>
+        <cover-image class="btn" @tap="handleMarkerTap" src="../images/icons/sidebar/school.png"></cover-image>
+        <cover-image class="btn" @tap="show360" src="../images/icons/sidebar/panorama.png"></cover-image>
+        <cover-image
           class="btn btn-cats"
           @tap="{{routeMode ? 'closeRoute' : 'toggleCats'}}"
-        >cat</cover-view>
+          src="../images/icons/sidebar/cats.png"
+        >cat</cover-image>
       </cover-view>
       <cover-view
         style="top:{{menuButtonPos}}px"
@@ -400,23 +397,29 @@
         </block>
       </cover-view>
       <cover-view class="FAB" @tap="toggleDeck" style="{{routeMode ? 'display:none' : ''}}">
-        <cover-view class="btn you" id="you" wx:if="{{Ymode}}">游</cover-view>
-        <cover-view class="btn xun" id="xun" wx:else>寻</cover-view>
+        <cover-image class="btn you" src="../images/icons/you.png" wx:if="{{Ymode}}"></cover-image>
+        <cover-image class="btn xun" src="../images/icons/xun.png" wx:else></cover-image>
       </cover-view>
       <!-- SWITCH -->
-      <cover-view class="switch" @tap="switchMode" style="{{routeMode ? 'display:none' : ''}}">{{Ymode ? 'Y' : 'X'}}</cover-view>
-      <!-- LOCATION & SEARCH -->
       <cover-view
+        class="switch"
+        @tap="switchMode"
+        style="{{routeMode ? 'display:none' : ''}}"
+      >{{Ymode ? 'Y' : 'X'}}</cover-view>
+      <!-- LOCATION & SEARCH -->
+      <cover-image
         class="location {{Ymode && showDeck ? 'offset' : ''}} {{routeMode ? 'route' : ''}}"
         @tap="locate"
+        src="../images/icons/location.png"
       >
         定位
-      </cover-view>
-      <cover-view
+      </cover-image>
+      <cover-image
         class="search {{Ymode && showDeck ? 'offset' : ''}}"
         @tap="search"
         style="{{routeMode ? 'display:none' : ''}}"
-      >搜索</cover-view>
+        src="../images/icons/search.png"
+      >搜索</cover-image>
     </map>
     <!-- ROUTES -->
     <view class="route-wrapper">
@@ -452,7 +455,7 @@
 
   export default class Index extends wepy.page {
     config = {
-      navigationBarTitleText: 'test',
+      navigationBarTitleText: '南苑寻游',
       navigationStyle: 'custom',
       disableScroll: true
     }
@@ -481,8 +484,7 @@
           }
         ]
       },
-      activeMessage: false,
-      message: 'X',
+      message: 'XXXXXXXXXXXXXXXX',
       timer: null,
       showMessagesBar: false
     }
@@ -521,7 +523,6 @@
     methods = {
       handleMarkerTap(e) {
         if (e.markerId !== undefined) {
-          console.log(1)
           wx.navigateTo({
             url: `./detail?id=${e.markerId}&${this.Ymode ? 'mode=you&type=' + encodeURI(this.originMarkers[this.currentCatIndex].type) : 'xun'}`
           })
@@ -601,7 +602,6 @@
         } else {
           this.markers = this.Ymarkers
         }
-        // this.showDeck = true
       },
       locate() {
         // 使用MapContext而非wx.getLocation
@@ -713,23 +713,23 @@
     loadMessages() {
       console.log('load message')
       const self = this
-      const timer = setInterval(() => {
+      this.timer = setInterval(() => {
         self.activeMessage = true
         self.message += 'X'
         self.$apply()
-      }, 5000)
-      this.timer = timer
+      }, 3000)
     }
 
     onShow() {
-      this.loadMessages()
+      console.log('onshow, set timer')
+      if (!this.timer) this.loadMessages()
       this.showMessagesBar = true
     }
 
     onHide() {
       this.showMessagesBar = false
-      console.log('clear timer')
       clearInterval(this.timer)
+      console.log('onhide, clear timer')
     }
   }
 </script>

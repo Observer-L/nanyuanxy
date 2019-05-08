@@ -1,6 +1,3 @@
-<style lang="less">
-</style>
-
 <script>
   import wepy from 'wepy'
   import 'wepy-async-function'
@@ -9,12 +6,13 @@
 
   import { setStore } from 'wepy-redux'
   import configStore from './store'
+  import { format2FullTime } from './utils/formatTime'
 
   const store = configStore()
   wepy.$store = store
   setStore(store)
 
-  let mockData = config.DEBUG ? require('./mock') : null
+  const mockData = config.DEBUG ? require('./mock') : null
 
   export default class extends wepy.app {
     config = {
@@ -30,7 +28,7 @@
       window: {
         backgroundTextStyle: 'light',
         navigationBarBackgroundColor: '#fff',
-        navigationBarTitleText: 'WeChat',
+        navigationBarTitleText: '南苑寻游',
         navigationBarTextStyle: 'black'
       },
       permission: {
@@ -56,7 +54,7 @@
       this.use('requestfix')
     }
 
-    async onLaunch() {
+    onLaunch() {
       this.globalData.audioCtx = wx.getBackgroundAudioManager()
       console.log('运行环境：', __ENV_PROD__ ? 'pro' : 'dev')
       console.log('运行配置：', config)
@@ -64,7 +62,7 @@
         env: config.env,
         traceUser: true
       })
-      this.checkAccessToken()
+      // this.checkAccessToken()
     }
 
     loadMarkers() {
@@ -121,12 +119,16 @@
             for (const j of i.data) {
               j.id = num
               num += 1
+              // j.iconPath = `/images/icons/markers/${i.icon}.png`
               j.iconPath = `/images/icons/markers/${i.icon}.png`
               j.width = config.markerStyle.width
               j.height = config.markerStyle.height
               j.latitude = j.location[0]
               j.longitude = j.location[1]
               j.callout = Object.assign({ content: j.short_name ? j.short_name : j.name }, config.markerStyle.calloutStyle)
+              if (j.time) {
+                j.fullTime = format2FullTime(j.time)
+              }
             }
           }
         }

@@ -24,28 +24,24 @@
   <view>
     <view class="board">
 
-      <view class="title">LOGO</view>
+      <view class="title">校园公告</view>
       <view class="container">
         <van-collapse value="{{ activeNames }}" bind:change="onChange">
 
-          <van-collapse-item title="有赞微商城" name="1">
-            提供多样店铺模板，快速搭建网上商城
+          <van-collapse-item title="教务信息" name="1">
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. At autem beatae deleniti dignissimos, distinctio doloremque harum illo, incidunt iure nam omnis quam quia quis quod reiciendis reprehenderit, sequi ullam veritatis!
           </van-collapse-item>
 
-          <van-collapse-item title="有赞零售" name="2">
-            网店吸粉获客、会员分层营销、一机多种收款，告别经营低效和客户流失
-            线上拓客，随时预约，贴心顺手的开单收银
-            线上拓客，随时预约，贴心顺手的开单收银
-            线上拓客，随时预约，贴心顺手的开单收银
+          <van-collapse-item title="施工维修" name="2">
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Asperiores blanditiis cumque cupiditate dolore facere id obcaecati quaerat qui quis temporibus. Animi consequuntur corporis doloribus error libero maiores maxime molestias reiciendis?
           </van-collapse-item>
 
-          <van-collapse-item title="有赞零售" name="3">
-            网店吸粉获客、会员分层营销、一机多种收款，告别经营低效和客户流失
-            线上拓客，随时预约，贴心顺手的开单收银
+          <van-collapse-item title="讲座论坛" name="3">
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad aperiam, dicta eum ex inventore minus nisi placeat provident quibusdam, recusandae tempore velit veritatis voluptates? A autem exercitationem placeat provident reiciendis!
           </van-collapse-item>
 
-          <van-collapse-item title="有赞美业" name="4" disabled>
-            线上拓客，随时预约，贴心顺手的开单收银
+          <van-collapse-item title="招生信息" name="4" disabled>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda eos eveniet explicabo ipsa pariatur porro quia quibusdam unde. Aperiam et explicabo ipsa nihil nostrum numquam odio saepe totam. Earum, placeat.
           </van-collapse-item>
 
         </van-collapse>

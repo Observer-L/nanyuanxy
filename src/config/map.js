@@ -1,6 +1,6 @@
 export const markerStyle = {
   width: 36,
-  height: 36,
+  height: 48,
   calloutStyle: {
     display: 'ALWAYS',
     bgColor: '#ffffff',

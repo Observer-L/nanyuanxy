@@ -6,9 +6,6 @@
   import wepy from 'wepy'
 
   export default class WebView extends wepy.page {
-    config = {
-      navigationBarTitleText: 'test'
-    }
 
     data = {
       scene_id: 2291778

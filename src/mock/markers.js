@@ -38,7 +38,7 @@ export const Ymarkers = [
     id: 'random_id_generated_by_cloud_database_1',
     type: '食堂',
     scale: 17,
-    icon: 'view',
+    icon: 'canteen',
     data: [
       {
         name: '西区食堂',
@@ -75,7 +75,7 @@ export const Ymarkers = [
     id: 'random_id_generated_by_cloud_database_2',
     type: '行政',
     scale: 17,
-    icon: 'view',
+    icon: 'building',
     data: [
       {
         name: '行政楼1号',

@@ -1,7 +1,0 @@
-
-        music: {
-          src: 'cloud://xy-dev.7879-xy-dev/music/EarnedIt.mp3',
-          coverImg: 'cloud://xy-dev.7879-xy-dev/music/Earned It.jpg',
-          duration: '251',
-          title: 'Earned It'
-        },
