@@ -1,18 +1,19 @@
 <script>
   import wepy from 'wepy'
   import 'wepy-async-function'
-  import { loadMarkersX, loadMarkersY, saveMarkers } from './store/actions'
-  import config from './config'
 
   import { setStore } from 'wepy-redux'
+  import { loadMarkersX, loadMarkersY, saveMarkers } from './store/actions'
   import configStore from './store'
-  import { format2FullTime } from './utils/formatTime'
 
-  const store = configStore()
-  wepy.$store = store
-  setStore(store)
+  import { format2FullTime } from './utils/formatTime'
+  import config from './config'
 
   const mockData = config.DEBUG ? require('./mock') : null
+  const store = configStore()
+
+  wepy.$store = store
+  setStore(store)
 
   export default class extends wepy.app {
     config = {
@@ -46,7 +47,6 @@
     }
 
     globalData = {
-      audioCtx: null
     }
 
     constructor() {
@@ -55,7 +55,6 @@
     }
 
     onLaunch() {
-      this.globalData.audioCtx = wx.getBackgroundAudioManager()
       console.log('运行环境：', __ENV_PROD__ ? 'pro' : 'dev')
       console.log('运行配置：', config)
       wx.cloud.init({
@@ -119,7 +118,6 @@
             for (const j of i.data) {
               j.id = num
               num += 1
-              // j.iconPath = `/images/icons/markers/${i.icon}.png`
               j.iconPath = `/images/icons/markers/${i.icon}.png`
               j.width = config.markerStyle.width
               j.height = config.markerStyle.height

@@ -351,7 +351,12 @@
       <cover-view class="sidebar" style="top:{{menuButtonPos}}px">
         <cover-image class="btn" @tap="showBoard" src="../images/icons/sidebar/board.png"></cover-image>
         <cover-image class="btn" @tap="handleMarkerTap" src="../images/icons/sidebar/school.png"></cover-image>
-        <cover-image class="btn" @tap="show360" src="../images/icons/sidebar/panorama.png"></cover-image>
+        <cover-image
+          wx:if="{{config.panorama.active}}"
+          class="btn"
+          @tap="show360"
+          src="../images/icons/sidebar/panorama.png"
+        ></cover-image>
         <cover-image
           class="btn btn-cats"
           @tap="{{routeMode ? 'closeRoute' : 'toggleCats'}}"
@@ -412,14 +417,13 @@
         @tap="locate"
         src="../images/icons/location.png"
       >
-        定位
       </cover-image>
       <cover-image
         class="search {{Ymode && showDeck ? 'offset' : ''}}"
         @tap="search"
         style="{{routeMode ? 'display:none' : ''}}"
         src="../images/icons/search.png"
-      >搜索</cover-image>
+      ></cover-image>
     </map>
     <!-- ROUTES -->
     <view class="route-wrapper">
@@ -486,7 +490,8 @@
       },
       message: 'XXXXXXXXXXXXXXXX',
       timer: null,
-      showMessagesBar: false
+      showMessagesBar: false,
+      config: null
     }
 
     computed = {
@@ -499,7 +504,7 @@
       },
       routeWidth () {
         if (!this.routes.length) return
-        // const routeLength = this.currentRoute.polyline[0].points.filter(p => p.name).length * 160
+        // const routeLength = this.currentRoute.polyline[0].points.filter(p => p                      .name).length * 160
         const routeLength = this.routes[this.currentRoute.id].count * 160
         const wd = wx.getSystemInfoSync().windowWidth
         return routeLength <= wd ? wd : routeLength
@@ -681,6 +686,7 @@
       })
 
       this.mapCtx = wx.createMapContext('map')
+      this.config = config
 
       this.loadMessages()
     }
