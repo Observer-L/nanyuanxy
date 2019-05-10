@@ -707,12 +707,15 @@
         })
       },
       bindGetUserInfo(e) {
-        console.log(e)
         if (e.detail.userInfo) {
+          console.log(e.detail.userInfo)
           this.isAuth = true
           wx.setStorage({
             key: 'userInfo',
             data: e.detail.userInfo
+          })
+          wx.navigateTo({
+            url: './account'
           })
         //  储存用户微信数据
           wx.cloud.callFunction({
