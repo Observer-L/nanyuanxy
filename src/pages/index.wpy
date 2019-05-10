@@ -314,6 +314,35 @@
       padding:0 76rpx 0 24rpx;
     }
   }
+
+  /* ACCOUNT */
+  .account {
+    position: absolute;
+    bottom: 80rpx;
+    left: 0;
+    .avatar, .btn-userInfo {
+      position:absolute;
+      z-index: 101;
+      width:52rpx;
+      height:52rpx;
+      left:36rpx;
+      top:12rpx;
+      border-radius: 50%;
+      box-shadow: 0 0 2px #aaa;
+    }
+    .btn-userInfo {
+      /* HACK */
+      background: rgba(255, 255, 255, .3);
+      color: #fff;
+      left:0;
+      top:0;
+    }
+    .bg, .btn-userInfo {
+      width: 100rpx;
+      height: 76rpx;
+    }
+  }
+
 </style>
 
 <template>
@@ -333,12 +362,6 @@
       enable-rotate
       style="width: 100%; height: {{routeMode ? '80vh' : '100vh' }};"
     >
-      <!-- MUSIC  -->
-      <cover-view class="mp-preview {{music.status === 0 ? 'active' : ''}}">
-        <cover-view class="control">P</cover-view>
-        <cover-view class="title">「南芳」 播放中</cover-view>
-        <cover-view class="close">X</cover-view>
-      </cover-view>
       <!-- MESSAGES -->
       <cover-view class="message-wrapper {{showMessagesBar ? 'active' : ''}}" style="top:{{menuButtonPos}}px">
         <cover-view
@@ -424,6 +447,19 @@
         style="{{routeMode ? 'display:none' : ''}}"
         src="../images/icons/search.png"
       ></cover-image>
+
+      <!-- ACCOUNT -->
+      <cover-view class="account" @tap="navigate" id="account">
+        <cover-image class="bg" src="../images/account.png"></cover-image>
+        <cover-image class="avatar" src="{{userInfo.avatarUrl && isAuth ? userInfo.avatarUrl : '../images/user.png'}}"></cover-image>
+        <!--    HACK    -->
+        <button
+          wx:if="{{!isAuth}}"
+          class="btn-userInfo"
+          open-type="getUserInfo"
+          bindgetuserinfo="bindGetUserInfo"
+        >.</button>
+      </cover-view>
     </map>
     <!-- ROUTES -->
     <view class="route-wrapper">
@@ -491,7 +527,9 @@
       message: 'XXXXXXXXXXXXXXXX',
       timer: null,
       showMessagesBar: false,
-      config: null
+      config: null,
+      isAuth: false,
+      userInfo: null
     }
 
     computed = {
@@ -660,6 +698,45 @@
           self.activeMessage = false
           self.$apply()
         }, 1000)
+      },
+      navigate(e) {
+        const id = e.currentTarget.id
+        if (id === 'account' && !this.isAuth) return
+        wx.navigateTo({
+          url: './' + id
+        })
+      },
+      bindGetUserInfo(e) {
+        console.log(e)
+        if (e.detail.userInfo) {
+          this.isAuth = true
+          wx.setStorage({
+            key: 'userInfo',
+            data: e.detail.userInfo
+          })
+        //  储存用户微信数据
+          wx.cloud.callFunction({
+            name: 'getUserInfo'
+          }).then(res => {
+            console.log(res)
+            if (res.result.data.length) {
+              // 已有用户，更新用户信息
+              wx.cloud.callFunction({
+                name: 'saveUserInfo',
+                data: e.detail.userInfo
+              }).then(res => {console.log(res)})
+            } else {
+            //  未授权用户，插入用户信息
+              wx.cloud.callFunction({
+                name: 'saveUserInfo',
+                data: {
+                  new: true,
+                  ...e.detail.userInfo
+                }
+              }).then(res => {console.log(res)})
+            }
+          })
+        }
       }
     }
 
@@ -689,6 +766,8 @@
       this.config = config
 
       this.loadMessages()
+      this.checkAuth()
+      this.loadUserInfo()
     }
 
     includePoints(padding) {
@@ -724,6 +803,45 @@
         self.message += 'X'
         self.$apply()
       }, 3000)
+    }
+
+    checkAuth() {
+      const self = this
+      wx.getSetting({
+        success(res) {
+          console.log(res.authSetting)
+          self.isAuth = res.authSetting['scope.userInfo']
+          self.$apply()
+        }
+      })
+    }
+
+    loadUserInfo() {
+      const self = this
+      wx.getStorage({
+        key: 'userInfo',
+        success(res) {
+          console.log(res)
+          self.userInfo = res.data
+          self.$apply()
+        },
+        fail(e) {
+          console.log(e)
+          if (e.errMsg) {
+          //  从数据库加载用户信息
+            wx.cloud.callFunction({
+              name: 'getUserInfo'
+            }).then(res => {
+              wx.setStorage({
+                key: 'userInfo',
+                data: res.result.data[0]
+              })
+              self.userInfo = res.result.data[0]
+              self.$apply()
+            })
+          }
+        }
+      })
     }
 
     onShow() {

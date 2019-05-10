@@ -82,6 +82,14 @@
         font-size: 14px;
       }
     }
+    &.more {
+      .more {
+        display: none;
+      }
+      .head {
+        margin-bottom: 20rpx;
+      }
+    }
   }
 
   .music-player {
@@ -113,7 +121,7 @@
         </swiper-item>
       </block>
     </swiper>
-    <view class="header">
+    <view class="header {{showMore ? '' : 'more'}}">
       <view class="head van-hairline--bottom">
         <image
           class="logo"
@@ -196,6 +204,9 @@
     }
 
     computed = {
+      showMore() {
+        return this.marker.contact || this.marker.panorama
+      }
     }
 
     methods = {

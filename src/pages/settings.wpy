@@ -1,0 +1,168 @@
+<style lang="less">
+  @import "../styles/base";
+
+  page {
+    background: #f8f8f8;
+  }
+
+  .cells {
+    margin-top: -50rpx;
+    border-radius: 6px;
+    .van-cell {
+      width: 90%;
+      margin: 0 auto;
+    }
+  }
+
+  .section {
+    padding: 20rpx;
+    >.title {
+      font-size: 52rpx;
+      margin: 20rpx 0;
+    }
+    .footer {
+      margin: 20rpx 0;
+    }
+  }
+
+  .container {
+    margin-bottom: 20rpx;
+  }
+
+  .btn {
+    margin: 40rpx 20rpx;
+  }
+
+  .switch {
+    transform: scale(.8);
+  }
+
+</style>
+<template>
+  <view>
+
+
+    <view class="section privacy" wx:if="{{type === 'privacy'}}">
+      <view class="title">隐私设置</view>
+      <view class="container">
+
+        <van-cell
+          title="匿名模式"
+          label="不显示微信头像和昵称"
+          icon="{{isAnonymous ? 'closed-eye' : 'eye-o'}}"
+        >
+          <van-switch
+            id="anonymous"
+            slot="right-icon"
+            checked="{{ isAnonymous }}"
+            @change="switch"
+            custom-class="switch"
+            active-color="#8BCEFF"
+          ></van-switch>
+        </van-cell>
+
+        <van-button type="primary" plain hairline custom-class="btn">确认</van-button>
+      </view>
+    </view>
+
+    <view class="section contact" wx:if="{{type === 'contact'}}">
+
+      <view class="title">联系信息</view>
+      <view class="container">
+
+        <van-field
+          id="phone"
+          value="{{ phone }}"
+          label="电话"
+          type="number"
+          left-icon="phone-o"
+          placeholder="请输入联系电话"
+          border="{{ false }}"
+          custom-class="switch"
+          @change="inputValue">
+        </van-field>
+
+        <van-button type="primary" plain hairline custom-class="btn">确认</van-button>
+
+      </view>
+
+    </view>
+
+
+    <view class="section about" wx:if="{{type === 'about'}}">
+      <view class="title">南苑导览</view>
+      <view class="content">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium at impedit laudantium molestias reiciendis. Aperiam aut esse est, facere, iure molestias neque nisi pariatur provident reiciendis sit tempora veniam voluptate?
+      </view>
+      <view class="footer">
+        <van-button type="primary" plain hairline custom-class="btn"  open-type="contact">意见反馈</van-button>
+      </view>
+    </view>
+
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Account extends wepy.page {
+    config = {
+      navigationBarTitleText: '设置',
+      usingComponents: {
+        'van-cell': '../components/vant/cell/index',
+        'van-cell-group': '../components/vant/cell-group/index',
+        'van-switch-cell': '../components/vant/switch-cell/index',
+        'van-switch': '../components/vant/switch/index',
+        'van-field': '../components/vant/field/index',
+        'van-button': '../components/vant/button/index'
+      }
+    }
+
+    data = {
+      type: '',
+      place: '',
+      phone: '',
+      isAnonymous: false,
+      places: [
+        '图书馆校园卡管理处',
+        'X教学楼管理处',
+        'X宿舍楼',
+        'X教学楼管理处'
+      ]
+    }
+
+    methods = {
+      inputValue(e) {
+        console.log(e)
+        this[e.target.id] = e.detail
+      },
+      switch(e) {
+        const target = e.currentTarget.id
+        switch (target) {
+          case 'anonymous':
+            this.isAnonymous = !this.isAnonymous
+            break
+        }
+      }
+    }
+
+    onLoad(options) {
+      const type = options.type
+      this.type = type
+      switch (options.type) {
+        case 'post':
+          wx.setNavigationBarTitle({title: '我的发布'})
+          break
+        case 'privacy':
+          wx.setNavigationBarTitle({title: '隐私设置'})
+          break
+        case 'contact':
+          wx.setNavigationBarTitle({title: '联系信息'})
+          break
+        case 'about':
+          wx.setNavigationBarTitle({title: '关于'})
+          break
+      }
+    }
+  }
+</script>

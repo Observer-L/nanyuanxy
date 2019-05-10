@@ -1,0 +1,154 @@
+<style lang="less">
+  @import "../styles/base";
+
+  page {
+    background: #f8f8f8;
+  }
+
+  .header {
+    background: @themeColorY;
+    height: 400rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding-bottom: 40rpx;
+    .avatar {
+      display: block;
+      width: 160rpx;
+      height: 160rpx;
+      border-radius: 50%;
+      overflow: hidden;
+      margin: 20rpx;
+      border: 2px solid #ffffff;
+    }
+
+    .nickname {
+      font-size: 36rpx;
+    }
+  }
+
+  .cells {
+    margin-top: -50rpx;
+    border-radius: 6px;
+    .van-cell {
+      width: 90%;
+      margin: 0 auto;
+    }
+  }
+
+  .switch {
+    transform: scale(.8);
+  }
+
+</style>
+<template>
+  <view>
+    <view class="header">
+      <open-data type="userAvatarUrl" class="avatar"></open-data>
+      <open-data type="userNickName" class="nickname"></open-data>
+    </view>
+
+    <view class="cells">
+
+      <van-cell
+        title="默认模式"
+        label="当前：{{defaultMode ? '寻' : '游'}}"
+        icon="diamond-o"
+      >
+        <van-switch
+          id="mode"
+          slot="right-icon"
+          checked="{{ !defaultMode }}"
+          @change="switch"
+          custom-class="switch"
+          active-color="#8BCEFF"
+          inactive-color="#FFDF83"
+        ></van-switch>
+<!--        @themeColorX: #FFDF83;-->
+<!--        @themeColorY: #8BCEFF;-->
+      </van-cell>
+
+      <van-cell
+        title="开启通知"
+        label="在有相关物品信息发布时发送通知"
+        icon="volume-o"
+      >
+        <van-switch
+          id="notification"
+          slot="right-icon"
+          checked="{{ notification }}"
+          @change="switch"
+          custom-class="switch"
+          active-color="#8BCEFF"
+        ></van-switch>
+      </van-cell>
+
+      <van-cell
+        title="我的发布"
+        icon="todo-list-o"
+        is-link
+        url="/pages/settings?type=post"
+      ></van-cell>
+      <van-cell
+        title="隐私设置"
+        icon="browsing-history-o"
+        is-link
+        url="/pages/settings?type=privacy"
+      ></van-cell>
+      <van-cell
+        title="联系信息"
+        icon="phone-o"
+        is-link
+        url="/pages/settings?type=contact"
+      ></van-cell>
+      <van-cell
+        title="关于南苑寻游"
+        icon="info-o"
+        is-link
+        url="/pages/settings?type=about"
+      ></van-cell>
+    </view>
+
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Account extends wepy.page {
+    config = {
+      navigationBarTitleText: '设置',
+      usingComponents: {
+        'van-cell': '../components/vant/cell/index',
+        'van-cell-group': '../components/vant/cell-group/index',
+        'van-switch-cell': '../components/vant/switch-cell/index',
+        'van-switch': '../components/vant/switch/index',
+        'van-icon': '../components/vant/icon/index'
+      },
+      disableScroll: true
+    }
+
+    data = {
+      defaultMode: 0,
+      notification: false
+    }
+
+    methods = {
+      switch(e) {
+        const target = e.currentTarget.id
+        switch (target) {
+          case 'mode':
+            this.defaultMode = this.defaultMode ? 0 : 1
+            break
+          case 'notification':
+            this.notification = !this.notification
+            break
+        }
+      }
+    }
+
+    onLoad() {
+    }
+  }
+</script>

@@ -24,6 +24,8 @@
         'pages/report',
         'pages/board',
         'pages/items',
+        'pages/account',
+        'pages/settings',
         'pages/web-view'
       ],
       window: {
