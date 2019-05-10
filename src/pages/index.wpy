@@ -708,7 +708,6 @@
       },
       bindGetUserInfo(e) {
         if (e.detail.userInfo) {
-          console.log(e.detail.userInfo)
           this.isAuth = true
           wx.setStorage({
             key: 'userInfo',
@@ -826,6 +825,7 @@
         success(res) {
           console.log(res)
           self.userInfo = res.data
+          self.Ymode = !res.data.default_mode
           self.$apply()
         },
         fail(e) {
@@ -840,6 +840,8 @@
                 data: res.result.data[0]
               })
               self.userInfo = res.result.data[0]
+              self.Ymode = !res.result.data[0].default_mode
+              console.log(123, res.result.data[0])
               self.$apply()
             })
           }

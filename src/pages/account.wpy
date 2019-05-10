@@ -60,6 +60,7 @@
           id="mode"
           slot="right-icon"
           checked="{{ !defaultMode }}"
+          loading="{{modeLoading}}"
           @change="switch"
           custom-class="switch"
           active-color="#8BCEFF"
@@ -131,15 +132,35 @@
 
     data = {
       defaultMode: 0,
-      notification: false
+      modeLoading: false,
+      notification: false,
+      userInfo: null
     }
 
     methods = {
       switch(e) {
+        const self = this
         const target = e.currentTarget.id
         switch (target) {
           case 'mode':
+            this.modeLoading = true
             this.defaultMode = this.defaultMode ? 0 : 1
+            wx.cloud.callFunction({
+              name: 'saveSettings',
+              data: { default_mode: this.defaultMode }
+            }).then(res => {
+              console.log(res, 666)
+              wx.setStorage({
+                key: 'userInfo',
+                data: {
+                  ...self.userInfo,
+                  default_mode: self.defaultMode
+                }
+              })
+              console.log(self.defaultMode)
+              self.modeLoading = false
+              self.$apply()
+            })
             break
           case 'notification':
             this.notification = !this.notification
@@ -149,6 +170,8 @@
     }
 
     onLoad() {
+      this.userInfo = wx.getStorageSync('userInfo')
+      this.defaultMode = this.userInfo.default_mode
     }
   }
 </script>
