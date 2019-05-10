@@ -41,6 +41,21 @@
 <template>
   <view>
 
+    <view class="section post" wx:if="{{type === 'post'}}">
+      <view class="title">我的发布</view>
+      <view class="container">
+
+        <van-cell
+          wx:for="{{markers}}"
+          title="{{item.name}}"
+          label=""
+          value="{{item.type}}"
+          url="./detail?id={{item._id}}&type={{item.type}}&source=post"
+        >
+        </van-cell>
+
+      </view>
+    </view>
 
     <view class="section privacy" wx:if="{{type === 'privacy'}}">
       <view class="title">隐私设置</view>
@@ -88,7 +103,6 @@
 
     </view>
 
-
     <view class="section about" wx:if="{{type === 'about'}}">
       <view class="title">南苑导览</view>
       <view class="content">
@@ -128,7 +142,8 @@
         'X教学楼管理处',
         'X宿舍楼',
         'X教学楼管理处'
-      ]
+      ],
+      markers: null
     }
 
     methods = {
@@ -152,6 +167,8 @@
       switch (options.type) {
         case 'post':
           wx.setNavigationBarTitle({title: '我的发布'})
+          // 加载post数据
+          this.loadPosts()
           break
         case 'privacy':
           wx.setNavigationBarTitle({title: '隐私设置'})
@@ -163,6 +180,17 @@
           wx.setNavigationBarTitle({title: '关于'})
           break
       }
+    }
+
+    loadPosts() {
+      const self = this
+      wx.cloud.callFunction({
+        name: 'loadPosts'
+      }).then(res => {
+        console.log(res)
+        self.markers = [...res.result.foundMarkers.data, ...res.result.lostMarkers.data]
+        self.$apply()
+      })
     }
   }
 </script>

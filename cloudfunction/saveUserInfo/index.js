@@ -13,7 +13,7 @@ exports.main = async (event, context) => {
   if (event.new) {
     await db.collection('users').add({
       data: {
-        openid: wxContext.APPID,
+        openid: wxContext.OPENID,
         ...event
       }
     })

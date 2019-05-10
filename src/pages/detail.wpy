@@ -236,14 +236,22 @@
       }
     }
 
-    onLoad(options) {
+    async onLoad(options) {
       const self = this
       this.config = config
-      if (options.id) {
+      if (options.id && options.source !== 'post') {
         options.id = Number(options.id)
         options.type = options.mode === 'you' ? decodeURI(options.type) : ''
         wepy.$store.dispatch(getTargetMarker(options))
         this.marker = wepy.$store.getState().markers.marker
+      } else if (options.source === 'post') {
+        const db = wx.cloud.database()
+        db.collection('xun_' + options.type).doc(options.id).get().then(
+          res => {
+            self.marker = res.data
+            self.$apply()
+          }
+        )
       } else {
         this.marker = config.school
       }

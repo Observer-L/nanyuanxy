@@ -10,8 +10,18 @@ const _ = db.command
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
 
-  return await db.collection('users').where({
-    openid: _.eq(wxContext.OPENID)
+  const xf = await db.collection('xun_found').where({
+    _openid: _.eq(wxContext.OPENID)
   })
     .get()
+
+  const xl = await db.collection('xun_lost').where({
+    _openid: _.eq(wxContext.OPENID)
+  })
+    .get()
+
+  return {
+    lostMarkers: xl,
+    foundMarkers: xf
+  }
 }
