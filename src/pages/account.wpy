@@ -149,7 +149,6 @@
               name: 'saveSettings',
               data: { default_mode: this.defaultMode }
             }).then(res => {
-              console.log(res, 666)
               wx.setStorage({
                 key: 'userInfo',
                 data: {
@@ -157,7 +156,6 @@
                   default_mode: self.defaultMode
                 }
               })
-              console.log(self.defaultMode)
               self.modeLoading = false
               self.$apply()
             })

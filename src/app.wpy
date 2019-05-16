@@ -123,12 +123,8 @@
               j.iconPath = `/images/icons/markers/${i.icon}.png`
               j.width = config.markerStyle.width
               j.height = config.markerStyle.height
-              j.latitude = j.location[0]
-              j.longitude = j.location[1]
-              j.callout = Object.assign({ content: j.short_name ? j.short_name : j.name }, config.markerStyle.calloutStyle)
-              if (j.time) {
-                j.fullTime = format2FullTime(j.time)
-              }
+              j.label = Object.assign({ content: j.short_name ? j.short_name : j.name }, config.markerStyle.calloutStyle)
+              if (j.time) { j.fullTime = format2FullTime(j.time) }
             }
           }
         }

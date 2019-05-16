@@ -15,6 +15,14 @@
       height: @sidebarSize;
       /*border-radius: 50%;*/
 
+      &.btn-cats {
+        transform: scale(1);
+        transition: all .3s ease;
+        &.active {
+          transform: scale(1.1);
+        }
+      }
+
       &:not(:last-child) {
         margin-bottom: @sidebarPadding;
       }
@@ -22,17 +30,21 @@
   }
 
   .cats {
+    width: 100rpx;
+    max-height: 460rpx;
+    font-size: 12px;
     position: absolute;
+    overflow-y: scroll;
     right: @sidebarPadding;
-    margin-top: @sidebarPadding * 5 + @sidebarSize * 4;
+    margin-top: @sidebarPadding * 4 + @sidebarSize * 4;
     width: @sidebarSize + (@sidebarPadding * 2);
-    // background: @grayBg;
+    background: rgba(255, 255, 255, 0.6);
     color: #fff;
     opacity: 0;
     transform: translateX(@sidebarSize + (@sidebarPadding * 3));
     text-transform: uppercase;
-    font-size: 16px;
     transition: all .3s ease;
+    border-radius: 6px;
 
     &.active {
       transform: translateX(0);
@@ -42,17 +54,17 @@
     .cat {
       width: 100%;
       height: @sidebarSize;
-      background: @grayBg;
       line-height: @sidebarSize;
       text-align: center;
       transition: all .3s ease;
-      border-radius: 2px;
+      color: #000;
 
-      &:not(:last-child) {
+      /* &:not(:last-child) {
         margin-bottom: @sidebarPadding / 2;
-      }
+      } */
 
       &.selected {
+        color: #fff;
         &.xun {
           background: @themeColorX;
         }
@@ -78,7 +90,8 @@
     width: @FABsize;
     height: @FABsize;
     left: 50%;
-    bottom: @FABsize * 1.5;
+    // bottom: @FABsize * 1.5;
+    bottom: @FABsize;
     transform: translateX(-50%);
 
     .btn {
@@ -120,22 +133,14 @@
     border-radius: 50%;
     left: 50%;
     margin-left: -(@FABsize * 1.25);
-    bottom: @FABsize * 0.75;
+    // bottom: @FABsize * 0.75;
+    bottom: @FABsize * 0.25;
 
     &.xun {
       width: @FABsize;
       margin-left: -(@FABsize * 0.5);
     }
   }
-
-  /* .bg {
-    background: @grayBg;
-    transform: scale(0);
-    transition: all .3s ease;
-    &.active {
-      transform: scale(1);
-    }
-  } */
 
   .deck {
     &.active {
@@ -197,24 +202,13 @@
     }
   }
 
-  /*SWITCH*/
-  .switch {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    width: @FABswicthSize;
-    height: @FABswicthSize;
-    text-align: center;
-    transform: translateX(-50%);
-    background: @grayBg;
-  }
-
   /* LOCATION & SEARCH */
   .location, .search {
     width: @FABsize / 2;
     height: @FABsize / 2;
     position: absolute;
-    bottom: @FABsize * 1.75;
+    // bottom: @FABsize * 1.75;
+    bottom: @FABsize * 1.25;
     transform: translate(0, 0);
     transition: all .3s ease;
   }
@@ -222,7 +216,7 @@
   .location {
     left: @FABsize;
     &.route {
-      transform: translate(-100rpx, 140rpx) !important;
+      transform: translate(-110rpx, 140rpx) !important;
     }
 
     &.offset {
@@ -332,6 +326,8 @@
     }
     .btn-userInfo {
       /* HACK */
+      border-radius: 0;
+      border: none;
       background: rgba(255, 255, 255, .3);
       color: #fff;
       left:0;
@@ -381,7 +377,7 @@
           src="../images/icons/sidebar/panorama.png"
         ></cover-image>
         <cover-image
-          class="btn btn-cats"
+          class="btn btn-cats {{showCats ? 'active' : ''}}"
           @tap="{{routeMode ? 'closeRoute' : 'toggleCats'}}"
           src="../images/icons/sidebar/cats.png"
         >cat</cover-image>
@@ -411,7 +407,6 @@
         </cover-view>
       </cover-view>
       <!-- FAB -->
-      <!--<cover-view class="bg {{showDeck ? 'active' : ''}} {{!Ymode ? 'xun' : ''}}"></cover-view>-->
       <cover-view class="deck {{showDeck ? 'active' : ''}} {{!Ymode ? 'xun' : ''}}" @tap="action" style="{{routeMode ? 'display:none' : ''}}">
         <block wx:if="{{Ymode}}">
           <cover-view class="option top" id="m">中</cover-view>
@@ -424,17 +419,17 @@
           <cover-view class="option bottom" id="found">Found</cover-view>
         </block>
       </cover-view>
-      <cover-view class="FAB" @tap="toggleDeck" style="{{routeMode ? 'display:none' : ''}}">
+      <cover-view class="FAB"
+                  @touchforcechange="switchMode"
+                  @longpress="switchMode"
+                  @tap="toggleDeck"
+                  style="{{routeMode ? 'display:none' : ''}}"
+      >
         <cover-image class="btn you" src="../images/icons/you.png" wx:if="{{Ymode}}"></cover-image>
         <cover-image class="btn xun" src="../images/icons/xun.png" wx:else></cover-image>
       </cover-view>
-      <!-- SWITCH -->
-      <cover-view
-        class="switch"
-        @tap="switchMode"
-        style="{{routeMode ? 'display:none' : ''}}"
-      >{{Ymode ? 'Y' : 'X'}}</cover-view>
-      <!-- LOCATION & SEARCH -->
+
+      <!-- SIDE BTN -->
       <cover-image
         class="location {{Ymode && showDeck ? 'offset' : ''}} {{routeMode ? 'route' : ''}}"
         @tap="locate"
@@ -449,7 +444,7 @@
       ></cover-image>
 
       <!-- ACCOUNT -->
-      <cover-view class="account" @tap="navigate" id="account">
+      <cover-view class="account" @tap="navigate" id="account" wx:if="{{!routeMode}}">
         <cover-image class="bg" src="../images/account.png"></cover-image>
         <cover-image class="avatar" src="{{userInfo.avatarUrl && isAuth ? userInfo.avatarUrl : '../images/user.png'}}"></cover-image>
         <!--    HACK    -->
@@ -538,11 +533,10 @@
       },
       routeLength() {
         if (!this.routes.length) return
-        return this.routes[this.currentRoute.id].count // 性能优化
+        return this.routes[this.currentRoute.id].count
       },
       routeWidth () {
         if (!this.routes.length) return
-        // const routeLength = this.currentRoute.polyline[0].points.filter(p => p                      .name).length * 160
         const routeLength = this.routes[this.currentRoute.id].count * 160
         const wd = wx.getSystemInfoSync().windowWidth
         return routeLength <= wd ? wd : routeLength
@@ -629,7 +623,7 @@
         setTimeout(() => {
           self.scale = 0
           self.$apply()
-        }, 200)
+        }, 300)
         // includePoints
         this.includePoints(125)
       },
@@ -644,6 +638,7 @@
           this.markers = this.Xmarkers.lost.data.concat(this.Xmarkers.found.data)
         } else {
           this.markers = this.Ymarkers
+          this.currentCatIndex = 0
         }
       },
       locate() {
@@ -665,6 +660,7 @@
         if (this.Ymode) {
           const cr = this.currentRoute
           const routes = this.routes
+          this.showMessagesBar = false
           switch (e.target.id) {
             case 'm':
               cr.id = 0
@@ -684,11 +680,12 @@
         this.showDeck = false
         this.currentRoute.polyline[0].points = []
         this.markers = this.originMarkers[this.currentCatIndex].data
+        this.showMessagesBar = true
       },
       focusPoint(e) {
         const id = e.currentTarget.dataset.id
         const targetMarker = this.currentRoute.polyline[0].points[id]
-        this.mapCenter = targetMarker.location
+        this.mapCenter = [targetMarker.latitude, targetMarker.longitude]
         this.scale = 18
       },
       switchMessage() {
@@ -765,6 +762,7 @@
       })
 
       this.mapCtx = wx.createMapContext('map')
+      // console.log(this.mapCtx)
       this.config = config
 
       this.loadMessages()
@@ -823,13 +821,11 @@
       wx.getStorage({
         key: 'userInfo',
         success(res) {
-          console.log(res)
           self.userInfo = res.data
           self.Ymode = !res.data.default_mode
           self.$apply()
         },
         fail(e) {
-          console.log(e)
           if (e.errMsg) {
           //  从数据库加载用户信息
             wx.cloud.callFunction({
@@ -841,10 +837,13 @@
               })
               self.userInfo = res.result.data[0]
               self.Ymode = !res.result.data[0].default_mode
-              console.log(123, res.result.data[0])
               self.$apply()
             })
           }
+        },
+        complete() {
+          self.markers = self.Ymode ? self.Ymarkers.data : [...self.Xmarkers.lost.data, ...self.Xmarkers.found.data]
+          self.$apply()
         }
       })
     }

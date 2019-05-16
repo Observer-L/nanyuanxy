@@ -205,7 +205,7 @@
 
     computed = {
       showMore() {
-        return this.marker.contact || this.marker.panorama
+        return this.marker.contact && (this.marker.contact.address || this.marker.contact.phone || this.marker.panorama)
       }
     }
 
