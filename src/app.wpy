@@ -58,6 +58,7 @@
     }
 
     onLaunch() {
+      this.checkVersion()
       console.log('运行环境：', __ENV_PROD__ ? 'pro' : 'dev')
       console.log('运行配置：', config)
       wx.cloud.init({
@@ -131,6 +132,22 @@
         }
         // store.dispatch(saveMarkers(cleanData))
         resolve(cleanData)
+      })
+    }
+
+    checkVersion() {
+      wx.getStorage({
+        key: 'version',
+        success(res) {
+          if (config.version !== res.data) wx.clearStorage()
+        },
+        fail() {
+          wx.clearStorage()
+          wx.setStorage({
+            key: 'version',
+            data: config.version
+          })
+        }
       })
     }
 

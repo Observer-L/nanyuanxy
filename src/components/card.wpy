@@ -128,7 +128,6 @@
 
 <script>
   import wepy from 'wepy'
-  import { format2FullTime } from '../utils/formatTime'
 
   export default class Card extends wepy.component {
     props = {

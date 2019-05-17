@@ -809,15 +809,14 @@
         }
         this.$apply()
         this.loadRoutes()
+        this.loadUserInfo()
       })
 
       this.mapCtx = wx.createMapContext('map')
-      // console.log(this.mapCtx)
       this.config = config
 
       this.loadMessages()
       this.checkAuth()
-      this.loadUserInfo()
     }
 
     includePoints(padding) {

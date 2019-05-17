@@ -93,13 +93,12 @@
       title="{{marker.name}}"
       border="{{ false }}"
       clickable="{{true}}"
-      @tap="jumpTo"
+      @tap="jump"
       clickable="{{true}}"
     >
       <image slot="icon" src="{{marker.iconPath}}" class="cell-icon"></image>
     </van-cell>
     <view wx:if="{{nothing}}" class="nothing">nothing</view>
-
 
   </view>
 </template>
@@ -159,7 +158,7 @@
       onChangeTypeX(e) {
         this.activeTypeX = e.detail.index
       },
-      jumpTo(e) {
+      jump(e) {
         wx.navigateTo({
           url: `./detail?id=${e.target.id}&${this.mode === 'you' ? 'mode=you&type=' + encodeURI(this.markers.Ymarkers[this.activeTypeY].type) : 'xun'}`
         })

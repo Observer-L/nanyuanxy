@@ -135,13 +135,6 @@
 <script>
   import wepy from 'wepy'
   import Card from '../components/card'
-  import { connect } from 'wepy-redux'
-
-  @connect({
-    Xmarkers(state) {
-      return state.markers.markers.Xmarkers
-    }
-  })
 
   export default class Items extends wepy.page {
     config = {
@@ -149,6 +142,10 @@
       usingComponents: {
         'van-card': '../components/vant/card/index'
       }
+    }
+
+    data = {
+      markers: null
     }
 
     components = {
@@ -168,7 +165,7 @@
     }
 
     onLoad() {
-      console.log(this.Xmarkers)
+      this.markers = this.$parent.globalData.markers.Xmarkers
     }
   }
 </script>
