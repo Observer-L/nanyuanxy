@@ -106,13 +106,6 @@
 
 <script>
   import wepy from 'wepy'
-  import { connect } from 'wepy-redux'
-
-  @connect({
-    markers(state) {
-      return state.markers.markers
-    }
-  })
 
   export default class Search extends wepy.page {
     config = {
@@ -127,6 +120,7 @@
 
     data = {
       mode: 'you',
+      markers: null,
       activeTypeY: 0,
       activeTypeX: 0,
       results: [],
@@ -174,6 +168,7 @@
 
     onLoad(options) {
       this.mode = options.mode
+      this.markers = this.$parent.globalData.markers
     }
   }
 </script>
