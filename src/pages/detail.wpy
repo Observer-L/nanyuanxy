@@ -192,6 +192,7 @@
     }
 
     data = {
+      mode: '',
       marker: {},
       audioCtx: null,
       music: {
@@ -220,8 +221,8 @@
       },
       navigate() {
         wx.openLocation({
-          latitude: this.marker.location[0],
-          longitude: this.marker.location[1],
+          latitude: Number(this.marker.latitude),
+          longitude: Number(this.marker.longitude),
           name: this.marker.name,
           scale: 15
         })
@@ -237,13 +238,20 @@
     }
 
     async onLoad(options) {
+      /*
+        id
+        source
+        school
+       */
       const self = this
+      this.mode = options.mode
       this.config = config
       if (options.id && options.source !== 'post') {
         options.id = Number(options.id)
         options.type = options.mode === 'you' ? decodeURI(options.type) : ''
-        wepy.$store.dispatch(getTargetMarker(options))
-        this.marker = wepy.$store.getState().markers.marker
+        this.marker = this.getTargetMarker(options.id, options.type)
+        // wepy.$store.dispatch(getTargetMarker(options))
+        // this.marker = wepy.$store.getState().markers.marker
       } else if (options.source === 'post') {
         const db = wx.cloud.database()
         db.collection('xun_' + options.type).doc(options.id).get().then(
@@ -255,6 +263,22 @@
       } else {
         this.marker = config.school
       }
+    }
+
+    getTargetMarker(id, type) {
+      const markers = this.$parent.globalData.markers
+      let result
+      if (this.mode === 'you') {
+        for (const m of markers.Ymarkers) {
+          if (m.type === type) {
+            result = m.data
+            break
+          }
+        }
+      } else {
+        result = markers.Xmarkers[0].data.concat(markers.Xmarkers[1].data)
+      }
+      return result.filter(m => m.id === id)[0]
     }
 
     onReady(e) {

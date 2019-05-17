@@ -49,6 +49,7 @@
     }
 
     globalData = {
+      markers: null
     }
 
     constructor() {
@@ -128,8 +129,7 @@
             }
           }
         }
-        console.log(cleanData)
-        store.dispatch(saveMarkers(cleanData))
+        // store.dispatch(saveMarkers(cleanData))
         resolve(cleanData)
       })
     }

@@ -339,6 +339,11 @@
     }
   }
 
+  .btn-reset {
+    width: 100rpx;
+    height: 130rpx;
+  }
+
 </style>
 
 <template>
@@ -354,10 +359,16 @@
       show-location
       enable-3D
       show-compass
-      enable-overlooking
-      enable-rotate
+      enable-satellite="{{false}}"
+      enable-traffic="{{false}}"
+      rotate="{{mapRotate}}"
+      skew="{{mapSkew}}"
+      enable-overlooking="{{true}}"
+      enable-rotate="{{true}}"
       style="width: 100%; height: {{routeMode ? '80vh' : '100vh' }};"
     >
+      <!-- COMPASS RESET ANGLE -->
+      <cover-view class="btn-reset" @tap="resetMapAngle"></cover-view>
       <!-- MESSAGES -->
       <cover-view class="message-wrapper {{showMessagesBar ? 'active' : ''}}" style="top:{{menuButtonPos}}px">
         <cover-view
@@ -498,6 +509,8 @@
     data = {
       mapCtx: null,
       mapCenter: [],
+      mapRotate: 0,
+      mapSkew: 0,
       school: config.school,
       originMarkers: [],
       markers: [],
@@ -580,6 +593,7 @@
       switchCat(e) {
         const self = this
         const catIndex = Number(e.target.id)
+
         if (this.Ymode) {
           if (this.currentCatIndex !== catIndex) {
             this.currentCatIndex = catIndex
@@ -736,12 +750,48 @@
             }
           })
         }
+      },
+      resetMapAngle() {
+        const self = this
+        this.mapCenter = this.school.location
+        this.mapCtx.getScale({
+          success(e) {
+            self.scale = e.scake
+            self.$apply()
+          },
+          complete() {
+            self.scale = 15
+            self.$apply()
+          }
+        })
+        this.mapCtx.getSkew({
+          success(e) {
+            self.mapSkew = e.skew
+            self.$apply()
+          },
+          complete() {
+            self.mapSkew = 0
+            self.$apply()
+          }
+        })
+        this.mapCtx.getRotate({
+          success(e) {
+            self.mapRotate = e.rotate
+            self.$apply()
+          },
+          complete() {
+            self.mapRotate = 0
+            self.$apply()
+          }
+        })
       }
     }
 
     onLoad(options) {
       if (options.mode) this.Ymode = options.mode === 'you'
       this.$parent.loadMarkers().then(res => {
+        this.$parent.globalData.markers = res
+        console.log(this.$parent.globalData)
         const Ymarkers = res.Ymarkers
         const Xmarkers = res.Xmarkers
         this.originMarkers = Ymarkers
