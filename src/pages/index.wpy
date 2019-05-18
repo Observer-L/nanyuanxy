@@ -737,7 +737,7 @@
               wx.cloud.callFunction({
                 name: 'saveUserInfo',
                 data: e.detail.userInfo
-              }).then(res => {console.log(res)})
+              }).then(res => { console.log(res) })
             } else {
             //  未授权用户，插入用户信息
               wx.cloud.callFunction({
@@ -746,7 +746,7 @@
                   new: true,
                   ...e.detail.userInfo
                 }
-              }).then(res => {console.log(res)})
+              }).then(res => { console.log(res) })
             }
           })
         }
@@ -791,7 +791,6 @@
       if (options.mode) this.Ymode = options.mode === 'you'
       this.$parent.loadMarkers().then(res => {
         this.$parent.globalData.markers = res
-        console.log(this.$parent.globalData)
         const Ymarkers = res.Ymarkers
         const Xmarkers = res.Xmarkers
         this.originMarkers = Ymarkers
@@ -858,7 +857,7 @@
       const self = this
       wx.getSetting({
         success(res) {
-          console.log(res.authSetting)
+          console.log('授权状态：', res.authSetting)
           self.isAuth = res.authSetting['scope.userInfo']
           self.$apply()
         }

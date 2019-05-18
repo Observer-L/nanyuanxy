@@ -52,7 +52,7 @@
               title="{{marker.name}}"
               border="{{ false }}"
               clickable="{{true}}"
-              @tap="jumpTo"
+              @tap="jump"
             >
               <image slot="icon" src="{{marker.iconPath}}" class="cell-icon"></image>
             </van-cell>
@@ -74,7 +74,7 @@
               title="{{marker.name}}"
               border="{{ false }}"
               clickable="{{true}}"
-              @tap="jumpTo"
+              @tap="jump"
               clickable="{{true}}"
             >
               <image slot="icon" src="{{marker.iconPath}}" class="cell-icon"></image>

@@ -173,15 +173,7 @@
 
 <script>
   import wepy from 'wepy'
-  import { connect } from 'wepy-redux'
-  import { getTargetMarker } from '../store/actions'
   import config from '../config'
-
-  @connect({
-    markers(state) {
-      return state.markers.markers
-    }
-  })
 
   export default class Detail extends wepy.page {
     config = {
@@ -250,8 +242,6 @@
         options.id = Number(options.id)
         options.type = options.mode === 'you' ? decodeURI(options.type) : ''
         this.marker = this.getTargetMarker(options.id, options.type)
-        // wepy.$store.dispatch(getTargetMarker(options))
-        // this.marker = wepy.$store.getState().markers.marker
       } else if (options.source === 'post') {
         const db = wx.cloud.database()
         db.collection('xun_' + options.type).doc(options.id).get().then(

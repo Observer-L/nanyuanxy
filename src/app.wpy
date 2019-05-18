@@ -2,18 +2,10 @@
   import wepy from 'wepy'
   import 'wepy-async-function'
 
-  import { setStore } from 'wepy-redux'
-  import { loadMarkersX, loadMarkersY, saveMarkers } from './store/actions'
-  import configStore from './store'
-
   import { format2FullTime } from './utils/formatTime'
   import config from './config'
 
   const mockData = config.DEBUG ? require('./mock') : null
-  const store = configStore()
-
-  wepy.$store = store
-  setStore(store)
 
   export default class extends wepy.app {
     config = {
@@ -65,7 +57,6 @@
         env: config.env,
         traceUser: true
       })
-      // this.checkAccessToken()
     }
 
     loadMarkers() {
@@ -80,38 +71,48 @@
           let Xmarkers
           if (!Ymarkers) {
             console.log('没Y缓存')
-            store.dispatch(loadMarkersX())
-              .then(res => {
-                Xmarkers = res.payload.Xmarkers
-                store.dispatch(loadMarkersY())
-                  .then(res => {
-                    const Ymarkers = res.payload.Ymarkers
-                    wx.setStorage({
-                      key: 'Ymarkers',
-                      data: Ymarkers
-                    })
-                    resolve(self.clearMarkers({
-                      Xmarkers,
-                      Ymarkers
-                    }))
-                  })
-              })
+
+            wx.cloud.callFunction({
+              name: 'loadMarkersY',
+              success(res) {
+                Ymarkers = res.result.Ymarkers
+                wx.setStorage({
+                  key: 'Ymarkers',
+                  data: Ymarkers
+                })
+                wx.cloud.callFunction({
+                  name: 'loadMarkersX',
+                  success(res) {
+                    resolve(
+                      self.clearMarkers({
+                        Xmarkers: res.result.Xmarkers,
+                        Ymarkers
+                      })
+                    )
+                  }
+                })
+              }
+            })
           } else {
             console.log('有Y缓存')
-            store.dispatch(loadMarkersX())
-              .then(res => {
-                Xmarkers = res.payload.Xmarkers
-                resolve(self.clearMarkers({
-                  Xmarkers,
-                  Ymarkers
-                }))
-              })
+            wx.cloud.callFunction({
+              name: 'loadMarkersX',
+              success(res) {
+                resolve(
+                  self.clearMarkers({
+                    Xmarkers: res.result.Xmarkers,
+                    Ymarkers
+                  })
+                )
+              }
+            })
           }
         }
       })
     }
 
     clearMarkers(data) {
+      console.log(data)
       //  清洗Marker数据
       return new Promise(resolve => {
         const cleanData = JSON.parse(JSON.stringify(data))
@@ -130,7 +131,6 @@
             }
           }
         }
-        // store.dispatch(saveMarkers(cleanData))
         resolve(cleanData)
       })
     }
@@ -165,6 +165,18 @@
           })
         })
       }
+    }
+
+    loadMarkersAsync() {
+
+      return new Promise(resolve => {
+        wx.cloud.callFunction({
+          name: 'loadMarkersY',
+          success(res) {
+            resolve(res.result)
+          }
+        })
+      })
     }
   }
 </script>
