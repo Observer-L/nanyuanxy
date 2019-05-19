@@ -374,7 +374,7 @@
         <cover-view
           class="message van-ellipsis"
         >
-          {{message}}
+          {{messages[messageIndex]}}
         </cover-view>
       </cover-view>
       <!-- SIDEBAR -->
@@ -532,7 +532,8 @@
           }
         ]
       },
-      message: 'XXXXXXXXXXXXXXXX',
+      messageIndex: 0,
+      messages: null,
       timer: null,
       showMessagesBar: false,
       config: null,
@@ -843,12 +844,11 @@
       this.routes = routes
     }
 
-    loadMessages() {
-      console.log('load message')
+    switchMessage() {
       const self = this
       this.timer = setInterval(() => {
-        self.activeMessage = true
-        self.message += 'X'
+        self.messageIndex = self.messageIndex >= self.messages.length ? 0 : self.messageIndex + 1
+        self.message = self.messages[self.messageIndex]
         self.$apply()
       }, 3000)
     }
@@ -894,6 +894,35 @@
           self.$apply()
         }
       })
+    }
+
+    loadMessages() {
+      const self = this
+      const messgaes = this.$parent.globalData.messages
+      if (!messgaes) {
+        wx.cloud.callFunction({
+          name: 'loadMessages',
+          success(res) {
+            self.messages = self.clearMessages(res.result.data)
+            self.$parent.globalData.messages = res.result.data
+            self.activeMessage = true
+            self.switchMessage()
+            self.$apply()
+          }
+        })
+      } else {
+        this.messages = messgaes
+      }
+    }
+
+    clearMessages(megs) {
+      let messages = []
+      for (const i of megs) {
+        for (const j of i.data) {
+          messages.push(j.content)
+        }
+      }
+      return messages
     }
 
     onShow() {

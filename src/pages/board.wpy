@@ -1,6 +1,10 @@
 <style lang="less">
   @import "../styles/base";
 
+  page {
+    background: #f8f8f8;
+  }
+
   .board {
     position: relative;
     top: 20rpx;
@@ -28,20 +32,21 @@
       <view class="container">
         <van-collapse value="{{ activeNames }}" bind:change="onChange">
 
-          <van-collapse-item title="教务信息" name="1">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. At autem beatae deleniti dignissimos, distinctio doloremque harum illo, incidunt iure nam omnis quam quia quis quod reiciendis reprehenderit, sequi ullam veritatis!
-          </van-collapse-item>
+          <van-collapse-item
+            wx:for="{{messages}}"
+            wx:key="{{index}}"
+            title="{{item.type}}"
+            name="{{index}}"
+          >
+            <view
+              wx:for="{{item.data}}"
+              wx:key="{{index}}"
+            >
+              <view class="num">{{index + 1}}</view>
+              <view class="content">{{item.content}}</view>
+              <view class="time">{{item.time}}</view>
+            </view>
 
-          <van-collapse-item title="施工维修" name="2">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Asperiores blanditiis cumque cupiditate dolore facere id obcaecati quaerat qui quis temporibus. Animi consequuntur corporis doloribus error libero maiores maxime molestias reiciendis?
-          </van-collapse-item>
-
-          <van-collapse-item title="讲座论坛" name="3">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad aperiam, dicta eum ex inventore minus nisi placeat provident quibusdam, recusandae tempore velit veritatis voluptates? A autem exercitationem placeat provident reiciendis!
-          </van-collapse-item>
-
-          <van-collapse-item title="招生信息" name="4" disabled>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda eos eveniet explicabo ipsa pariatur porro quia quibusdam unde. Aperiam et explicabo ipsa nihil nostrum numquam odio saepe totam. Earum, placeat.
           </van-collapse-item>
 
         </van-collapse>
@@ -63,7 +68,8 @@
     }
 
     data = {
-      activeNames: ['1']
+      activeNames: ['1'],
+      messages: null
     }
 
     methods = {
@@ -73,6 +79,7 @@
     }
 
     onLoad() {
+      this.messages = this.$parent.globalData.messages
     }
   }
 </script>

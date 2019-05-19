@@ -123,7 +123,6 @@
       usingComponents: {
         'van-cell': '../components/vant/cell/index',
         'van-cell-group': '../components/vant/cell-group/index',
-        'van-switch-cell': '../components/vant/switch-cell/index',
         'van-switch': '../components/vant/switch/index',
         'van-icon': '../components/vant/icon/index'
       },
