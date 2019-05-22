@@ -104,6 +104,99 @@
       }
     }
   }
+
+
+  .item {
+    &.lost {
+      .item_title {
+        border-color: @lostColor;
+      }
+      .item_status {
+        background-color: @lostColor;
+      }
+    }
+    &.found {
+      .item_title {
+        border-color: @foundColor;
+      }
+      .item_status {
+        background-color: @foundColor;
+      }
+    }
+    .item_title {
+      background: #fff;
+      display: flex;
+      overflow: hidden;
+      justify-content: space-between;
+      border-radius: 80px 0 0 0;
+      border-width: 2px;
+      border-bottom-width: 0;
+      border-style: solid;
+      transition: border-color .2s ease-out;
+
+      .item_status {
+        width: 260rpx;
+        color: #fff;
+        font-size: 18px;
+        line-height: 26px;
+        text-align: center;
+        transform: skewX(-30deg);
+        transition: background-color .2s ease-out;
+
+        text {
+          display: inline-block;
+          letter-spacing:2px;
+          transform: skewX(30deg);
+        }
+
+      }
+
+      .item_reported_time {
+        display: flex;
+        align-items: center;
+        margin-right: 6px;
+        font-size: 14px;
+
+        .item_reported_time_prefix {
+          font-size: 80%;
+          color: #aaa;
+        }
+      }
+    }
+  }
+  .card {
+    width: 95vw;
+    margin: 20rpx auto;
+    .card_body {
+      background: #fff;
+      border-width: 2px;
+      border-top-width: 0;
+      border-style: solid;
+      transition: border-color .2s ease-out;
+      border-radius: 0 0 6px 6px;
+      word-break: ;
+      &.lost {
+        border-color: @lostColor;
+      }
+      &.found {
+        border-color: @foundColor;
+      }
+    }
+    .details {
+      .detail {
+        display: flex;
+        align-items: center;
+
+        .prefix {
+          font-size: 12px;
+        }
+
+        .content {
+          flex: 2;
+        }
+      }
+    }
+  }
 </style>
 
 <template>
@@ -113,19 +206,43 @@
 
     <view class="results">
       <block
-        wx:for="{{Xmarkers}}"
-        wx:key="item.type"
+        wx:for="{{markers}}"
+        wx:key="index"
         wx:for-item="markers"
       >
 
-
-          <repeat for="{{markers.data}}" key="index" index="index" item="item">
-            <card :item.sync="item"></card>
-          </repeat>
+        <view @tap="handleClickItem" class="card" wx:for="{{markers.data}}" wx:key="{{index}}">
+          <view class="item {{item.type}}">
+            <view class="item_title">
+              <view class="item_status">
+                <text>{{item.type}}</text>
+              </view>
+              <view class="item_reported_time">
+                <text class="item_reported_time_prefix">发布时间：</text>
+                <text>{{item.fullTime}}</text>
+              </view>
+            </view>
+          </view>
+          <van-card
+            tag="标签"
+            title="{{item.cat}} - {{item.name}}"
+            thumb="{{item.images.length ? item.images[0] : '/images/card.svg'}}"
+            custom-class="card_body {{item.type}}"
+          >
+            <view slot="desc" class="details">
+              <view class="detail detail_time">
+                <view class="prefix">{{item.type === 'lost' ? '丢失时间' : '拾取时间'}}：</view>
+                <view class="content">{{item.fullTime}}</view>
+              </view>
+              <view class="detail detail_desc" wx:if="{{item.desc}}">
+                <view class="prefix">描述：</view>
+                <view class="content van-ellipsis">{{item.desc}}</view>
+              </view>
+            </view>
+          </van-card>
+        </view>
 
       </block>
-
-
 
     </view>
 
@@ -134,7 +251,6 @@
 
 <script>
   import wepy from 'wepy'
-  import Card from '../components/card'
 
   export default class Items extends wepy.page {
     config = {
@@ -148,10 +264,6 @@
       markers: null
     }
 
-    components = {
-      card: Card
-    }
-
     computed = {
     }
 
@@ -160,6 +272,11 @@
         const id = e.currentTarget.dataset.id
         wx.navigateTo({
           url: './detail?id=' + id
+        })
+      },
+      handleClickItem() {
+        wx.navigateTo({
+          url: '/pages/detail?id=' + this.info.id
         })
       }
     }

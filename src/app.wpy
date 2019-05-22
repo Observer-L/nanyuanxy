@@ -42,7 +42,8 @@
 
     globalData = {
       markers: null,
-      messages: null
+      messages: null,
+      itemMessages: null
     }
 
     constructor() {

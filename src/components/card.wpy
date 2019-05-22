@@ -102,14 +102,14 @@
         </view>
         <view class="item_reported_time">
           <text class="item_reported_time_prefix">发布时间：</text>
-          <text>{{fullTime}}</text>
+          <text>{{item.fullTime}}</text>
         </view>
       </view>
     </view>
     <van-card
       tag="标签"
       title="{{item.cat}} - {{item.name}}"
-      thumb="{{item.images[0]}}"
+      thumb="{{item.images.length ? item.images[0] : ''}}"
       custom-class="card_body {{item.type}}"
     >
       <view slot="desc" class="details">

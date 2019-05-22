@@ -350,8 +350,8 @@
   <view>
     <map
       id="map"
-      longitude="{{mapCenter.length ? mapCenter[1] : school.location[1]}}"
-      latitude="{{mapCenter.length ? mapCenter[0] : school.location[0]}}"
+      longitude="{{mapCenter.length ? mapCenter[1] : school.longitude}}"
+      latitude="{{mapCenter.length ? mapCenter[0] : school.latitude}}"
       scale="{{scale ? scale : originMarkers[currentCatIndex].scale}}"
       markers="{{markers}}"
       @markertap="handleMarkerTap"
@@ -647,6 +647,7 @@
       },
       switchMode() {
         this.Ymode = !this.Ymode
+        this.loadMessages()
         if (!this.Ymode) {
           this.Xmarkers.lost.active = true
           this.Xmarkers.found.active = true
@@ -707,7 +708,7 @@
         console.log('switch')
         const self = this
         setTimeout(() => {
-          self.activeMessage = false
+          self.showMessagesBar = false
           self.$apply()
         }, 1000)
       },
@@ -810,12 +811,12 @@
         this.$apply()
         this.loadRoutes()
         this.loadUserInfo()
+        this.loadMessages()
       })
 
       this.mapCtx = wx.createMapContext('map')
       this.config = config
 
-      this.loadMessages()
       this.checkAuth()
     }
 
@@ -847,10 +848,10 @@
     switchMessage() {
       const self = this
       this.timer = setInterval(() => {
-        self.messageIndex = self.messageIndex >= self.messages.length ? 0 : self.messageIndex + 1
+        self.messageIndex = self.messageIndex === self.messages.length - 1 ? 0 : self.messageIndex + 1
         self.message = self.messages[self.messageIndex]
         self.$apply()
-      }, 3000)
+      }, 2000)
     }
 
     checkAuth() {
@@ -890,6 +891,7 @@
           }
         },
         complete() {
+          self.loadMessages()
           self.markers = self.Ymode ? self.Ymarkers.data : [...self.Xmarkers.lost.data, ...self.Xmarkers.found.data]
           self.$apply()
         }
@@ -897,44 +899,62 @@
     }
 
     loadMessages() {
+      clearInterval(this.timer)
       const self = this
-      const messgaes = this.$parent.globalData.messages
-      if (!messgaes) {
-        wx.cloud.callFunction({
-          name: 'loadMessages',
-          success(res) {
-            self.messages = self.clearMessages(res.result.data)
-            self.$parent.globalData.messages = res.result.data
-            self.activeMessage = true
-            self.switchMessage()
-            self.$apply()
-          }
-        })
-      } else {
-        this.messages = messgaes
-      }
-    }
-
-    clearMessages(megs) {
-      let messages = []
-      for (const i of megs) {
-        for (const j of i.data) {
-          messages.push(j.content)
+      let messages = this.$parent.globalData.messages
+      let itemMessgaes = this.$parent.globalData.itemMessgaes
+      if (this.Ymode) {
+        if (!messages) {
+          messages = []
+          wx.cloud.callFunction({
+            name: 'loadMessages',
+            success(res) {
+              for (const i of res.result.data) {
+                for (const j of i.data) {
+                  messages.push(j.content)
+                }
+              }
+              self.messages = messages
+              self.$parent.globalData.messages = messages
+              self.showMessagesBar = true
+              self.switchMessage()
+              self.$apply()
+            }
+          })
+        } else {
+          this.messages = messages
+          this.$parent.globalData.messages = messages
+          this.showMessagesBar = true
+          this.switchMessage()
         }
+
+      } else {
+        if (!itemMessgaes) {
+          itemMessgaes = []
+          for (const i of [...this.Xmarkers.lost.data, ...this.Xmarkers.found.data]) {
+            itemMessgaes.push(i.name + ' ' + i.desc)
+          }
+          this.$parent.globalData.itemMessgaes = itemMessgaes
+          this.messages = itemMessgaes
+          this.showMessagesBar = true
+        }
+        this.messages = itemMessgaes
+        this.switchMessage()
       }
-      return messages
     }
 
     onShow() {
       console.log('onshow, set timer')
-      if (!this.timer) this.loadMessages()
-      this.showMessagesBar = true
+      if (this.messages) {
+        this.showMessagesBar = true
+        this.switchMessage()
+      }
     }
 
     onHide() {
-      this.showMessagesBar = false
       clearInterval(this.timer)
+      this.showMessagesBar = false
       console.log('onhide, clear timer')
     }
-  }
+}
 </script>
