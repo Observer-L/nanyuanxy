@@ -13,14 +13,11 @@ export default {
     author: '卢佳楠 / 谢维嘉',
     name: '南芳'
   },
-  desc: '校园介绍文字',
-  images: [
-    'https://via.placeholder.com/400',
-    'https://via.placeholder.com/400'
-  ],
+  desc: '中山大学南方学院是2006年经教育部批准，由中山大学与广东珠江投资集团合作创办的独立学院，是一所多学科全日制应用型本科高等学校，2016年被遴选为广东省普通本科转型试点高校。',
+  images: 2,
   contact: {
-    phone: '123456789',
-    address: '校园地址'
+    phone: '020-61787201',
+    address: '广州市从化区温泉大道882号中山大学南方学院'
   },
   panorama: 2291778   // 720云全景场景ID
 }

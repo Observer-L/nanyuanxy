@@ -254,6 +254,7 @@
       margin-top: 20rpx;
       background: #fff;
       .points {
+        margin-left: 40rpx;
         height: 100rpx;
         display: flex;
         .info:not(:last-child) {
@@ -266,7 +267,7 @@
           flex-direction: column;
           align-items:center;
           image {
-            width: 64rpx;
+            width: 70rpx;
             height: 96rpx;
           }
           .name {
@@ -280,9 +281,9 @@
       z-index: 0;
       top: 30rpx;
       height: 2px;
-      background-color: @themeColorY;
-      border-left: 20rpx solid #0091ff;
-      border-right: 20rpx solid #CB4042;
+      background-color: #eeeeee;
+      border-left: 40rpx solid #0091ff;
+      border-right: 40rpx solid #CB4042;
     }
   }
 
@@ -354,6 +355,7 @@
       latitude="{{mapCenter.length ? mapCenter[0] : school.latitude}}"
       scale="{{scale ? scale : originMarkers[currentCatIndex].scale}}"
       markers="{{markers}}"
+      circles="{{circles}}"
       @markertap="handleMarkerTap"
       polyline="{{ currentRoute.polyline }}"
       show-location
@@ -423,7 +425,7 @@
           <cover-view class="option top" id="m">中</cover-view>
           <cover-view class="option right" id="e">东</cover-view>
           <cover-view class="option bottom" id="s">南</cover-view>
-          <cover-view class="option left" id="e">西</cover-view>
+          <cover-view class="option left" id="w">西</cover-view>
         </block>
         <block wx:else>
           <cover-view class="option top" id="lost">Lost</cover-view>
@@ -488,7 +490,7 @@
             </view>
           </block>
         </view>
-        <view class="line" style="width:{{routeLength * 80}}rpx"></view>
+        <view class="line" style="width:{{(routeLength * 120) - 40}}rpx"></view>
       </scroll-view>
       <view class="close" @tap="closeRoute">X</view>
     </view>
@@ -514,6 +516,7 @@
       school: config.school,
       originMarkers: [],
       markers: [],
+      circles: [],
       Xmarkers: {},
       Ymarkers: [],
       showCats: true,
@@ -674,18 +677,38 @@
       action(e) {
         if (!e.target.id) return
         if (this.Ymode) {
+          this.showMessagesBar = false
           const cr = this.currentRoute
           const routes = this.routes
-          this.showMessagesBar = false
           switch (e.target.id) {
             case 'm':
               cr.id = 0
               cr.polyline[0].points = routes[0].data
-              this.markers = cr.polyline[0].points.filter(p => p.name)
+              this.scale = routes[0].scale
               break
-            default:
-              console.log('none')
+            case 'w':
+              cr.id = 1
+              break
+            case 'e':
+              cr.id = 2
+              break
+            case 's':
+              cr.id = 3
+              for (const c of routes[3].circles) {
+                this.circles.push({
+                  ...config.markerStyle.circleStyle,
+                  fillColor: config.markerStyle.polylineStyle.color + '50',
+                  color: config.markerStyle.polylineStyle.color,
+                  ...c
+                })
+              }
+              break
           }
+          const markers = routes[cr.id].data
+          cr.polyline[0].points = markers
+          this.scale = routes[cr.id].scale
+          this.mapCenter = [markers[0].latitude, markers[0].longitude]
+          this.markers = cr.polyline[0].points.filter(p => p.name)
         } else {
           wx.navigateTo({
             url: './report?type=' + e.target.id
@@ -693,6 +716,8 @@
         }
       },
       closeRoute() {
+        this.methods.resetMapAngle.apply(this)
+        this.circles = []
         this.showDeck = false
         this.currentRoute.polyline[0].points = []
         this.markers = this.originMarkers[this.currentCatIndex].data
@@ -705,7 +730,6 @@
         this.scale = 18
       },
       switchMessage() {
-        console.log('switch')
         const self = this
         setTimeout(() => {
           self.showMessagesBar = false
@@ -733,13 +757,12 @@
           wx.cloud.callFunction({
             name: 'getUserInfo'
           }).then(res => {
-            console.log(res)
             if (res.result.data.length) {
               // 已有用户，更新用户信息
               wx.cloud.callFunction({
                 name: 'saveUserInfo',
                 data: e.detail.userInfo
-              }).then(res => { console.log(res) })
+              })
             } else {
             //  未授权用户，插入用户信息
               wx.cloud.callFunction({
@@ -748,17 +771,17 @@
                   new: true,
                   ...e.detail.userInfo
                 }
-              }).then(res => { console.log(res) })
+              })
             }
           })
         }
       },
       resetMapAngle() {
         const self = this
-        this.mapCenter = this.school.location
+        this.mapCenter = [this.school.latitude, this.school.longitude]
         this.mapCtx.getScale({
           success(e) {
-            self.scale = e.scake
+            self.scale = e.scale
             self.$apply()
           },
           complete() {
@@ -834,7 +857,7 @@
           if (point.name) {
             for (const i of this.originMarkers) {
               for (const j of i.data) {
-                if (j.name === point.name) {
+                if (j.name === point.name || j.short_name === point.name) {
                   point = Object.assign(point, j)
                 }
               }
@@ -885,6 +908,7 @@
                 data: res.result.data[0]
               })
               self.userInfo = res.result.data[0]
+
               self.Ymode = !res.result.data[0].default_mode
               self.$apply()
             })
@@ -916,6 +940,7 @@
               }
               self.messages = messages
               self.$parent.globalData.messages = messages
+              self.$parent.globalData._messages = res.result.data
               self.showMessagesBar = true
               self.switchMessage()
               self.$apply()
@@ -923,11 +948,11 @@
           })
         } else {
           this.messages = messages
+          this.$parent.globalData._messages = this.$parent.globalData._messages
           this.$parent.globalData.messages = messages
           this.showMessagesBar = true
           this.switchMessage()
         }
-
       } else {
         if (!itemMessgaes) {
           itemMessgaes = []

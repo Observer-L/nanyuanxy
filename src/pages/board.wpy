@@ -42,7 +42,8 @@
               wx:for="{{item.data}}"
               wx:key="{{index}}"
             >
-              <view class="num">{{index + 1}}</view>
+              <!-- TODO: rich-text -->
+              <!--<view class="num">{{index + 1}}</view>-->
               <view class="content">{{item.content}}</view>
               <view class="time">{{item.time}}</view>
             </view>
@@ -79,7 +80,7 @@
     }
 
     onLoad() {
-      this.messages = this.$parent.globalData.messages
+      this.messages = this.$parent.globalData._messages
     }
   }
 </script>

@@ -10,7 +10,7 @@
     &.small {
       height: 40vh;
       .location {
-        transform:translateX(55vw);
+        transform:translateX(49vw);
       }
     }
 
@@ -25,12 +25,23 @@
     }
 
     .location {
+      display: flex;
       position: absolute;
-      top: 35vh;
+      top: 32vh;
       left: 30%;
       transform: translateX(0);
-      background: tomato;
+      padding: 20rpx;
       transition: all .3s ease;
+      color: #ffffff;
+      &.lost {
+        background: @lostColor;
+      }
+      &.found {
+        background: @foundColor;
+      }
+      icon {
+        margin-right: 20rpx;
+      }
     }
   }
 
@@ -66,7 +77,7 @@
     .desc {
       flex: 1;
       text-align: center;
-      background: @grayBg;
+      font-size: 12px;
     }
     .next, .prev {
       width: 80rpx;
@@ -131,9 +142,12 @@
           style="{{currentStep !== 1 ? 'display:none' : ''}}"
         >
           <cover-view class="mask {{showMask ? 'show' : ''}}" @tap="togglePicker"></cover-view>
-          <cover-view class="location" @tap="chooseLocation">
-            <block wx:if="{{!marker.latitude}}">哪里{{type === 'lost' ? '丢失' : '捡到'}}的？</block>
-            <block wx:else>重选</block>
+          <cover-view class="location {{type}}" @tap="chooseLocation">
+            <cover-image src="/images/icons/location_map.png" class="icon"></cover-image>
+            <cover-view wx:if="{{!marker.latitude}}">
+              在哪{{type === 'lost' ? '丢失' : '捡到'}}的？
+            </cover-view>
+            <cover-view wx:else>重选</cover-view>
           </cover-view>
         </map>
 
@@ -443,7 +457,7 @@
           values: Object.values(config.itemTypes)[0]
         }
       ],
-      tips: ['s1', '', 's3', 's4'],
+      tips: ['选择位置时请手动微调以避免标识重叠', '为保护用户隐私，证件类物品不支持图片预览', '选择事件发生大概的时间段', '联系方式可在个人中心修改'],
       formData: {
         cardId: '',
         name: '',
@@ -520,7 +534,6 @@
 
     methods = {
       chooseLocation() {
-        console.log(123)
         const self = this
         wx.chooseLocation({
           success(res) {
@@ -530,9 +543,6 @@
             self.scale = 18
             self.percent = 25
             self.$apply()
-          },
-          fail(e) {
-            console.log(e)
           }
         })
       },

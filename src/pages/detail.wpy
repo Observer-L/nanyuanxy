@@ -33,6 +33,7 @@
         margin-bottom: -@logoSize / 2;
         border-radius: 50%;
         border: 3px solid #fff;
+        background: #fff;
       }
 
       .title {
@@ -101,6 +102,7 @@
 <template>
   <view>
     <swiper
+      wx:if="{{images.length}}"
       id="swiper"
       indicator-dots="{{marker.images.length > 1}}"
       autoplay="{{true}}"
@@ -108,7 +110,7 @@
       duration="{{1000}}"
     >
       <block
-        wx:for="{{marker.images}}"
+        wx:for="{{images}}"
         wx:key="{{index}}"
       >
         <swiper-item>
@@ -126,7 +128,7 @@
         <image
           class="logo"
           wx:if="{{marker.logo}}"
-          src="/images/logo/{{marker.logo}}.png"
+          src="{{'cloud://xy-dev.7879-xy-dev-1258862796/logo/' + marker.logo + '.jpg'}}"
         ></image>
         <view class="title">
           <view class="name">{{marker.name}}</view>
@@ -156,7 +158,6 @@
             src="{{marker.music.src}}"
             id="myAudio"
             controls
-            loop
           ></audio>
         </view>
 
@@ -165,9 +166,8 @@
 
       <view class="desc">
         <view class="title">{{mode === 'you' ? '简介' : '物品说明'}}</view>
-        <view class="detail">
-
-        </view>
+        <view class="detail"></view>
+        <!-- TODO: rich-text -->
         <view class="content">{{marker.desc}}</view>
       </view>
     </view>
@@ -190,13 +190,9 @@
       mode: '',
       marker: {},
       audioCtx: null,
-      music: {
-        poster: 'http://y.gtimg.cn/music/photo_new/T002R300x300M000003rsKF44GyaSk.jpg?max_age=2592000',
-        name: '此时此刻',
-        author: '许巍',
-        src: 'http://ws.stream.qqmusic.qq.com/M500001VfvsJ21xFqb.mp3?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&vkey=6292F51E1E384E06DCBDC9AB7C49FD713D632D313AC4858BACB8DDD29067D3C601481D36E62053BF8DFEAF74C0A5CCFADD6471160CAF3E6A&fromtag=46',
-      },
-      config: null
+      music: {},
+      config: null,
+      images: []
     }
 
     computed = {
@@ -208,10 +204,9 @@
     methods = {
       previewImage(e) {
         const targetId = e.target.dataset.id
-        console.log(this.marker.images[targetId])
         wx.previewImage({
-          current: this.marker.images[targetId],
-          urls: this.marker.images
+          current: this.images[targetId],
+          urls: this.images
         })
       },
       navigate() {
@@ -245,16 +240,31 @@
         options.id = Number(options.id)
         options.type = options.mode === 'you' ? decodeURI(options.type) : ''
         this.marker = this.getTargetMarker(options.id, options.type)
+        this.setImages()
       } else if (options.source === 'post') {
         const db = wx.cloud.database()
         db.collection('xun_' + options.type).doc(options.id).get().then(
           res => {
             self.marker = res.data
             self.$apply()
+            self.setImages()
           }
         )
       } else {
         this.marker = config.school
+        this.mode = 'you'
+        this.setImages()
+      }
+    }
+
+    setImages() {
+      const cloudSource = 'cloud://xy-dev.7879-xy-dev-1258862796/'
+      if (this.mode === 'you') {
+        for (let i = 0; i < this.marker.images; i++) {
+          this.images.push(cloudSource + 'you/' + (this.marker.short_name ? this.marker.short_name : this.marker.name) + '/' + i + '.jpg')
+        }
+      } else {
+        this.images = this.marker.images
       }
     }
 
@@ -271,11 +281,11 @@
       } else {
         result = markers.Xmarkers[0].data.concat(markers.Xmarkers[1].data)
       }
+
       return result.filter(m => m.id === id)[0]
     }
 
     onReady(e) {
-      // 使用 wx.createAudioContext 获取 audio 上下文 context
       this.audioCtx = wx.createAudioContext('myAudio')
     }
   }

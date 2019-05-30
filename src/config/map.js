@@ -13,7 +13,7 @@ export const markerStyle = {
     borderWidth: .5
   },
   polylineStyle: {
-    color: '#BadA55',
+    color: '#1DA1FF',
     width: 4
   },
   circleStyle: {
